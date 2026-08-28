@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arpent — the asset layer for AI</title>
+<meta name="description" content="Arpent — the asset layer for AI. Identity · Consent · Index.">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1520; --card:#141b28; --line:#232c3d;
+    --ink:#e9edf4; --mut:#9aa6bd; --dim:#657089;
+    --gold:#d4af37; --acc:#4fd1c5; --acc2:#7c9cf5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #16233b 0%, var(--bg) 55%) fixed;
+    color:var(--ink); line-height:1.5; min-height:100vh;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 22px 80px;}
+
+  header{padding:64px 0 18px; text-align:center;}
+  .logo{font-size:.78rem; font-weight:800; letter-spacing:.42em; text-transform:uppercase; color:var(--gold);}
+  h1{font-size:clamp(2.1rem,5vw,3.2rem); font-weight:750; letter-spacing:-.02em; margin:16px 0 10px; line-height:1.08;}
+  h1 b{color:var(--acc);}
+  .tag{font-size:1.05rem; color:var(--mut); max-width:600px; margin:0 auto;}
+  .triad{display:inline-flex; gap:10px; margin-top:20px; flex-wrap:wrap; justify-content:center;}
+  .triad span{font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    border:1px solid var(--line); border-radius:999px; padding:6px 16px; color:var(--acc);
+    background:rgba(79,209,197,.06);}
+
+  .section-l{font-size:.74rem; font-weight:800; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--dim); margin:52px 0 16px; display:flex; align-items:center; gap:12px;}
+  .section-l::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;}
+  .tile{background:linear-gradient(180deg,var(--card),var(--bg2)); border:1px solid var(--line);
+    border-radius:16px; padding:22px 22px 20px; transition:.18s; position:relative; overflow:hidden; display:block;}
+  .tile:hover{transform:translateY(-3px); border-color:#38445c; box-shadow:0 18px 40px -20px rgba(0,0,0,.7);}
+  .tile.feature{grid-column:1/-1; background:linear-gradient(120deg,#16233b,#0f1520);}
+  .tile .ic{font-size:1.7rem; margin-bottom:12px;}
+  .tile h3{font-size:1.18rem; font-weight:700; margin-bottom:5px;}
+  .tile .d{font-size:.92rem; color:var(--mut);}
+  .tile .go{margin-top:14px; font-size:.82rem; font-weight:700; color:var(--acc); letter-spacing:.02em;}
+  .tile.feature .meta{display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; font-size:.8rem; color:var(--dim);}
+  .tile.feature .meta b{color:var(--mut); font-weight:600;}
+
+  .tile.soon{opacity:.72;}
+  .tile.soon .badge{position:absolute; top:16px; right:16px; font-size:.62rem; font-weight:800;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--gold); border:1px solid rgba(212,175,55,.35);
+    background:rgba(212,175,55,.08); border-radius:6px; padding:3px 8px;}
+
+  footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line);
+    font-size:.82rem; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  footer b{color:var(--mut); font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">Arpent</div>
+    <h1>The asset layer<br>for <b>AI</b>.</h1>
+    <p class="tag">When agents act, they must prove what they are allowed to use. Arpent gives every asset an identity, a consent, and an index — through one API.</p>
+    <div class="triad"><span>Identity</span><span>Consent</span><span>Index</span></div>
+  </header>
+
+  <div class="section-l">Live tools</div>
+  <div class="grid">
+    <a class="tile feature" href="./events-hub.html">
+      <div class="ic">🗓️</div>
+      <h3>Arpent Events Hub 2026</h3>
+      <div class="d">The GTM command centre — every conference that matters for Arpent, scored and filterable: sessions, speakers, exhibitors, and the Must / High / Medium / Low × Partner / Payer / Capital signals, plus a per-session Arpent pitch.</div>
+      <div class="meta"><span><b>6</b> events</span><span><b>REF · UEDD · GDC · Dreamforce · Slush · Trustech</b></span><span>Aug → Dec 2026</span></div>
+      <div class="go">Open the hub →</div>
+    </a>
+  </div>
+
+  <div class="section-l">Agents &amp; API — coming online</div>
+  <div class="grid">
+    <div class="tile soon">
+      <span class="badge">Soon</span>
+      <div class="ic">💬</div>
+      <h3>Ask Arpent</h3>
+      <div class="d">An on-page assistant that answers questions about the programmes, the API, and where Arpent fits — powered by a secure backend.</div>
+    </div>
+    <div class="tile soon">
+      <span class="badge">Soon</span>
+      <div class="ic">🧩</div>
+      <h3>Arpent API — live demo</h3>
+      <div class="d">Try identity · consent · index against a sample asset: request a verifiable attestation and see the resolve step in action.</div>
+    </div>
+    <div class="tile soon">
+      <span class="badge">Soon</span>
+      <div class="ic">🛰️</div>
+      <h3>Signal agents</h3>
+      <div class="d">Background agents that keep the event data fresh, watch new conferences and CFPs, and send weekly GTM digests.</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>© 2026 <b>Arpent</b> — hosted by CLIMATE SASU · Paris</span>
+    <span><b>arpentai.com</b> · Read the real. Proof moves money.</span>
+  </footer>
+
+</div>
+</body>
+</html>
