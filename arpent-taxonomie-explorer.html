@@ -8,7 +8,7 @@
   :root{
     --bg:#0a0e14; --bg2:#0f1520; --card:#141b28; --line:#232c3d;
     --ink:#e9edf4; --mut:#9aa6bd; --dim:#657089;
-    --gold:#d4af37; --acc:#4fd1c5; --acc2:#7c9cf5; --ok:#3ddc97; --warn:#e0b341;
+    --gold:#d4af37; --acc:#4fd1c5; --acc2:#7c9cf5; --ok:#3ddc97; --warn:#e0b341; --err:#e07a7a;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
@@ -20,6 +20,15 @@
   h1{font-size:clamp(1.7rem,4vw,2.4rem); font-weight:750; letter-spacing:-.02em; margin:12px 0 6px;}
   h1 b{color:var(--acc);}
   .sub{color:var(--mut); font-size:1rem; max-width:680px;}
+  .live{display:inline-flex; align-items:center; gap:7px; font-size:.72rem; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ok); border:1px solid rgba(61,220,151,.3); background:rgba(61,220,151,.08);
+    border-radius:999px; padding:4px 11px; margin-top:14px;}
+  .live .dot{width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 0 rgba(61,220,151,.6);
+    animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,151,.5)}70%{box-shadow:0 0 0 7px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
+  .live .t{color:var(--dim); font-weight:600; text-transform:none; letter-spacing:0;}
+  .live button{background:none; border:none; color:var(--acc); font:inherit; font-size:.72rem; font-weight:700;
+    cursor:pointer; text-transform:uppercase; letter-spacing:.04em;}
 
   .kpis{display:flex; gap:12px; flex-wrap:wrap; margin:22px 0 6px;}
   .kpi{background:linear-gradient(180deg,var(--card),var(--bg2)); border:1px solid var(--line);
@@ -89,9 +98,14 @@
   .addbox p{color:var(--mut); font-size:.92rem; margin-bottom:8px;}
   .addbox code{font-family:'SF Mono',ui-monospace,Menlo,monospace; font-size:.82rem; color:var(--ink);
     background:var(--bg2); padding:1px 6px; border-radius:5px;}
-  .addbox ul{margin:6px 0 0 2px; list-style:none;}
-  .addbox li{padding:6px 0 6px 20px; position:relative; color:var(--mut); font-size:.9rem;}
-  .addbox li::before{content:"→"; position:absolute; left:0; color:var(--acc);}
+
+  .state{padding:50px 20px; text-align:center; color:var(--mut);}
+  .state .spin{width:26px; height:26px; border:3px solid var(--line); border-top-color:var(--acc);
+    border-radius:50%; animation:rot .8s linear infinite; margin:0 auto 14px;}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .state.err{color:var(--err);}
+  .state.err button{margin-top:12px; background:var(--bg2); border:1px solid var(--err); color:var(--err);
+    border-radius:8px; padding:8px 16px; font:inherit; font-weight:700; cursor:pointer;}
 
   footer{margin-top:40px; padding-top:20px; border-top:1px solid var(--line);
     font-size:.8rem; color:var(--dim); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
@@ -105,37 +119,34 @@
   <header>
     <div class="logo">Arpent · Taxonomie</div>
     <h1>Explorateur de la <b>taxonomie</b></h1>
-    <p class="sub">Vue vivante de la base <span style="color:var(--acc2)">Arpent Taxonomy</span> (Supabase) — catégories, sous-catégories et couverture des référentiels. État au 30 août 2026 · ISO/IEC inclus.</p>
+    <p class="sub">Vue en direct de la base <span style="color:var(--acc2)">Arpent Taxonomy</span> — catégories, sous-catégories et couverture des référentiels, lus en temps réel depuis Supabase.</p>
+    <div class="live"><span class="dot"></span>En direct<span class="t" id="loadedAt"></span> · <button id="refresh">Rafraîchir</button></div>
     <div class="kpis">
-      <div class="kpi"><div class="n">10</div><div class="l">Catégories</div></div>
-      <div class="kpi"><div class="n">56</div><div class="l">Sous-catégories</div></div>
-      <div class="kpi"><div class="n">289</div><div class="l">Mappings</div></div>
-      <div class="kpi"><div class="n">13</div><div class="l">Référentiels</div></div>
+      <div class="kpi"><div class="n" id="kCat">—</div><div class="l">Catégories</div></div>
+      <div class="kpi"><div class="n" id="kSub">—</div><div class="l">Sous-catégories</div></div>
+      <div class="kpi"><div class="n" id="kMap">—</div><div class="l">Mappings</div></div>
+      <div class="kpi"><div class="n" id="kRef">—</div><div class="l">Référentiels</div></div>
     </div>
   </header>
 
   <div class="toolbar">
-    <input id="q" type="text" placeholder="Rechercher un code, un libellé, un référentiel… (ex. PAC, IFC, chaudière)">
+    <input id="q" type="text" placeholder="Rechercher un code, un libellé, un référentiel… (ex. PAC, IFC, ISO)">
     <div class="chips" id="refChips"></div>
   </div>
   <div class="count-note" id="countNote"></div>
 
-  <div id="tree"></div>
+  <div id="tree">
+    <div class="state"><div class="spin"></div>Chargement des données depuis Supabase…</div>
+  </div>
 
-  <div class="legend">
-    <h2>Les 13 référentiels</h2>
+  <div class="legend" id="legendBox" hidden>
+    <h2 id="legendTitle">Référentiels</h2>
     <div class="legend-grid" id="legendGrid"></div>
   </div>
 
   <div class="addbox">
-    <h2>Ajouter des données</h2>
-    <p>Trois façons d'enrichir la base, de la plus simple à la plus industrielle :</p>
-    <ul>
-      <li><b style="color:var(--ink)">Éditeur de tables Supabase</b> — ouvrir <code>arpent_category</code>, <code>arpent_subcategory</code> ou <code>arpent_referential_mapping</code>, puis « Insert row ». Idéal pour quelques lignes.</li>
-      <li><b style="color:var(--ink)">Requête SQL</b> — un <code>INSERT</code> (ou le loader <code>arpent_load_taxonomy()</code>) pour un lot cohérent. Je peux te le préparer et le lancer dans ton éditeur.</li>
-      <li><b style="color:var(--ink)">Connecteur</b> — ingestion automatique (ENERGY STAR / AHRI / ETIM) pour les volumes.</li>
-    </ul>
-    <p style="margin-top:10px">Rappel des contraintes : un mapping doit pointer vers un <code>subcategory_code</code> existant ; <code>referential</code> ∈ {IFC, ETIM, CEE_FR, DPP_ESPR, DPP_CPR, ENERGY_STAR, HS_CODE, UNSPSC, MASTERFORMAT, AHRI, DPP_BATTERY, ISO, IEC} ; <code>confidence</code> ∈ {primary, secondary}.</p>
+    <h2>Comment ça marche</h2>
+    <p>Cette page interroge directement l'API de la base (PostgREST) au chargement, en lecture seule et via une clé publiable — la sécurité repose sur les politiques RLS de Supabase, qui n'exposent que la taxonomie de référence. Ajoute une donnée dans la base, rafraîchis : elle apparaît ici, sans redéploiement.</p>
   </div>
 
   <footer>
@@ -146,219 +157,119 @@
 </div>
 
 <script>
-const CATS = [
-  {c:"ENV",fr:"Enveloppe thermique",en:"Thermal envelope",t:"Isolation, menuiserie, étanchéité",r:true,l:30},
-  {c:"HVA",fr:"Production de chaleur et froid",en:"Heating and cooling generation",t:"Chauffagiste, frigoriste",r:true,l:17},
-  {c:"DHW",fr:"Eau chaude sanitaire",en:"Domestic hot water",t:"Plombier, chauffagiste",r:true,l:15},
-  {c:"VEN",fr:"Ventilation et qualité d'air",en:"Ventilation and indoor air quality",t:"Ventiliste, aéraulicien",r:true,l:20},
-  {c:"ENE",fr:"Production et stockage d'énergie",en:"Energy generation and storage",t:"Installateur PV, électricien qualifié",r:true,l:25},
-  {c:"MOB",fr:"Mobilité et recharge",en:"Mobility and charging",t:"Électricien IRVE qualifié",r:true,l:12},
-  {c:"FLU",fr:"Distribution et fluides",en:"Distribution and fluids",t:"Plombier, électricien",r:true,l:40},
-  {c:"SEC",fr:"Sécurité, conformité et diagnostics",en:"Safety, compliance and diagnostics",t:"Diagnostiqueur, bureau de contrôle",r:true,l:10},
-  {c:"INT",fr:"Second œuvre et équipements intérieurs",en:"Interior fit-out and equipment",t:"Cuisiniste, plombier, plaquiste",r:false,l:15},
-  {c:"EXT",fr:"Extérieur, parcelle et pilotage",en:"Outdoor, parcel and control",t:"Paysagiste, domoticien, terrassier",r:true,l:20}
-];
-const SUBS = [
-  ["DHW.BAL","DHW","Ballon tampon et couplage PAC",true],
-  ["DHW.CEE","DHW","Chauffe-eau électrique",false],
-  ["DHW.CEG","DHW","Chauffe-eau gaz (instantané, accumulation)",true],
-  ["DHW.CES","DHW","Chauffe-eau solaire individuel",true],
-  ["DHW.CET","DHW","Chauffe-eau thermodynamique (CET)",true],
-  ["ENE.BAT","ENE","Stockage batterie stationnaire",false],
-  ["ENE.EMS","ENE","Pilotage énergie (EMS, autoconsommation)",true],
-  ["ENE.EOL","ENE","Micro-éolien domestique",false],
-  ["ENE.PV","ENE","Photovoltaïque et onduleur",false],
-  ["ENE.ST","ENE","Solaire thermique",true],
-  ["ENV.ETA","ENV","Étanchéité à l'air et pare-vapeur",false],
-  ["ENV.ITE","ENV","Isolation thermique extérieure (ITE)",true],
-  ["ENV.ITI","ENV","Isolation thermique intérieure (ITI)",true],
-  ["ENV.MEN","ENV","Menuiseries extérieures (fenêtres, portes, baies)",true],
-  ["ENV.PLB","ENV","Isolation planchers bas",true],
-  ["ENV.PRT","ENV","Protection solaire (volets, stores, brise-soleil)",true],
-  ["ENV.TOI","ENV","Isolation toiture / combles",true],
-  ["EXT.ASS","EXT","Assainissement (fosses, micro-stations)",false],
-  ["EXT.CLO","EXT","Clôtures, portails, accès",false],
-  ["EXT.CPT","EXT","Compteurs communicants (Linky, Gazpar)",false],
-  ["EXT.DOM","EXT","Domotique et GTB",true],
-  ["EXT.JN","EXT","Jumeau numérique et modélisation 3D",false],
-  ["EXT.PAY","EXT","Aménagement paysager et végétal",false],
-  ["EXT.PIS","EXT","Piscine, spa et couverture",true],
-  ["FLU.AER","FLU","Réseaux aérauliques et gaines",true],
-  ["FLU.COM","FLU","Comptage et sous-comptage",true],
-  ["FLU.ELE","FLU","Tableau et distribution électrique",false],
-  ["FLU.GAZ","FLU","Distribution gaz intérieure",false],
-  ["FLU.HYD","FLU","Hydraulique chauffage et calorifugeage",true],
-  ["FLU.PLB","FLU","Plomberie eau froide et chaude",false],
-  ["HVA.CHAU","HVA","Chaudière (gaz, fioul, biomasse, hydrogène)",true],
-  ["HVA.CLIM","HVA","Climatisation (split, VRF, centrale)",false],
-  ["HVA.PACAA","HVA","Pompe à chaleur air/air",true],
-  ["HVA.PACAE","HVA","Pompe à chaleur air/eau",true],
-  ["HVA.PACEE","HVA","Pompe à chaleur eau/eau et géothermie",true],
-  ["HVA.POEL","HVA","Poêles et inserts biomasse",true],
-  ["HVA.RADI","HVA","Émetteurs (radiateurs, plancher chauffant)",true],
-  ["HVA.RCU","HVA","Raccordement réseau chaleur/froid",true],
-  ["INT.ASC","INT","Ascenseurs et circulations verticales",false],
-  ["INT.CLO","INT","Cloisons, plafonds, faux-plafonds",false],
-  ["INT.CUI","INT","Cuisine équipée et électroménager",false],
-  ["INT.REV","INT","Revêtements sols et murs",false],
-  ["INT.SDB","INT","Salle de bain et sanitaires",false],
-  ["MOB.AC","MOB","Borne de recharge AC (résidentiel/tertiaire)",true],
-  ["MOB.DC","MOB","Borne de recharge DC rapide",true],
-  ["MOB.V2X","MOB","V2G / V2H",false],
-  ["MOB.VEL","MOB","Stationnement vélo sécurisé et local mobilité",false],
-  ["SEC.ACC","SEC","Accessibilité et normes ERP",false],
-  ["SEC.CTL","SEC","Attestations de conformité (Consuel, Qualigaz, décennale)",false],
-  ["SEC.DIA","SEC","Diagnostics réglementaires (DPE, amiante, plomb, termites, gaz, électricité)",false],
-  ["SEC.GAZ","SEC","Détection CO et sécurité gaz",false],
-  ["SEC.INC","SEC","Sécurité incendie (DAAF, extincteurs, désenfumage)",false],
-  ["VEN.DF","VEN","VMC double flux",true],
-  ["VEN.EXT","VEN","Extraction locale (sanitaires, hottes)",false],
-  ["VEN.QAI","VEN","Traitement et mesure QAI (filtration, capteurs)",false],
-  ["VEN.SF","VEN","VMC simple flux",true]
-];
-const COV = {
-  "DHW.BAL":{refs:["ETIM","IFC"],n:2},
-  "DHW.CEE":{refs:["IFC","ETIM","DPP_ESPR","IEC"],n:4},
-  "DHW.CEG":{refs:["CEE_FR","DPP_ESPR","ETIM","IFC","UNSPSC"],n:5},
-  "DHW.CES":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","ISO"],n:7},
-  "DHW.CET":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","HS_CODE","UNSPSC","IEC"],n:8},
-  "ENE.BAT":{refs:["IFC","ETIM","DPP_ESPR","HS_CODE","DPP_BATTERY","IEC"],n:9},
-  "ENE.EMS":{refs:["IFC","ETIM","CEE_FR","ISO","IEC"],n:6},
-  "ENE.EOL":{refs:["IFC","IEC"],n:2},
-  "ENE.PV":{refs:["IFC","ETIM","DPP_ESPR","ENERGY_STAR","HS_CODE","UNSPSC","IEC"],n:13},
-  "ENE.ST":{refs:["IFC","ETIM","CEE_FR","UNSPSC","ISO"],n:6},
-  "ENV.ETA":{refs:["IFC","DPP_CPR","ISO"],n:3},
-  "ENV.ITE":{refs:["IFC","CEE_FR","DPP_CPR","HS_CODE","MASTERFORMAT","ISO"],n:7},
-  "ENV.ITI":{refs:["IFC","CEE_FR","DPP_CPR","ISO"],n:5},
-  "ENV.MEN":{refs:["IFC","ETIM","CEE_FR","DPP_CPR","ENERGY_STAR","HS_CODE","MASTERFORMAT","ISO"],n:12},
-  "ENV.PLB":{refs:["IFC","CEE_FR","DPP_CPR","ISO"],n:4},
-  "ENV.PRT":{refs:["IFC","ETIM","DPP_CPR","ISO"],n:4},
-  "ENV.TOI":{refs:["IFC","CEE_FR","DPP_CPR","ISO"],n:4},
-  "EXT.ASS":{refs:["IFC"],n:1},
-  "EXT.CLO":{refs:["IFC"],n:1},
-  "EXT.CPT":{refs:["IFC","ETIM","IEC"],n:4},
-  "EXT.DOM":{refs:["IFC","ETIM","CEE_FR","ENERGY_STAR","ISO"],n:8},
-  "EXT.JN":{refs:["IFC","ISO"],n:6},
-  "EXT.PAY":{refs:["IFC"],n:1},
-  "EXT.PIS":{refs:["CEE_FR","IFC"],n:2},
-  "FLU.AER":{refs:["ETIM","IFC"],n:2},
-  "FLU.COM":{refs:["IFC","ETIM","CEE_FR","ISO","IEC"],n:6},
-  "FLU.ELE":{refs:["IFC","ETIM","DPP_CPR","MASTERFORMAT","IEC"],n:7},
-  "FLU.GAZ":{refs:["ETIM","IFC"],n:2},
-  "FLU.HYD":{refs:["CEE_FR","DPP_ESPR","ETIM","IFC","MASTERFORMAT"],n:5},
-  "FLU.PLB":{refs:["DPP_CPR","ETIM","IFC"],n:4},
-  "HVA.CHAU":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","HS_CODE","UNSPSC","AHRI","IEC"],n:11},
-  "HVA.CLIM":{refs:["IFC","ETIM","DPP_ESPR","HS_CODE","UNSPSC","AHRI","ISO","IEC"],n:12},
-  "HVA.PACAA":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","HS_CODE","UNSPSC","AHRI","ISO","IEC"],n:12},
-  "HVA.PACAE":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","HS_CODE","UNSPSC","AHRI","IEC"],n:9},
-  "HVA.PACEE":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","AHRI","ISO","IEC"],n:9},
-  "HVA.POEL":{refs:["CEE_FR","DPP_ESPR","ETIM","IFC"],n:5},
-  "HVA.RADI":{refs:["CEE_FR","DPP_CPR","DPP_ESPR","ETIM","IFC"],n:6},
-  "HVA.RCU":{refs:["CEE_FR","IFC"],n:2},
-  "INT.ASC":{refs:["IFC","ISO"],n:4},
-  "INT.CLO":{refs:["IFC"],n:1},
-  "INT.CUI":{refs:["IFC","ETIM","ENERGY_STAR","MASTERFORMAT","IEC"],n:5},
-  "INT.REV":{refs:["DPP_CPR","IFC"],n:2},
-  "INT.SDB":{refs:["ETIM","IFC"],n:3},
-  "MOB.AC":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","HS_CODE","UNSPSC","MASTERFORMAT","ISO","IEC"],n:10},
-  "MOB.DC":{refs:["IFC","ETIM","DPP_ESPR","MASTERFORMAT","ISO","IEC"],n:7},
-  "MOB.V2X":{refs:["IFC","DPP_BATTERY","ISO","IEC"],n:4},
-  "MOB.VEL":{refs:["IFC"],n:1},
-  "SEC.ACC":{refs:["IFC","ISO"],n:2},
-  "SEC.CTL":{refs:["IFC"],n:1},
-  "SEC.DIA":{refs:["CEE_FR","IFC"],n:2},
-  "SEC.GAZ":{refs:["ETIM","IFC"],n:2},
-  "SEC.INC":{refs:["IFC","ETIM","DPP_CPR","MASTERFORMAT","ISO"],n:5},
-  "VEN.DF":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","ENERGY_STAR","AHRI","ISO"],n:9},
-  "VEN.EXT":{refs:["IFC","ETIM","DPP_ESPR","IEC"],n:4},
-  "VEN.QAI":{refs:["IFC","ETIM","ISO"],n:5},
-  "VEN.SF":{refs:["IFC","ETIM","CEE_FR","DPP_ESPR","UNSPSC","ISO"],n:6}
-};
-const REF_META = {
-  IFC:{color:"#4fd1c5",n:56,name:"IFC 4.3",desc:"Modèle openBIM (buildingSMART) — entités & predefined types"},
-  ETIM:{color:"#7c9cf5",n:49,name:"ETIM",desc:"Classification technique produits (négoce, industrie)"},
-  CEE_FR:{color:"#e0b341",n:25,name:"CEE (France)",desc:"Certificats d'Économies d'Énergie — fiches BAR-TH / BAR-EN"},
-  DPP_ESPR:{color:"#3ddc97",n:19,name:"DPP · ESPR",desc:"Digital Product Passport — cadre écoconception (ESPR)"},
-  DPP_CPR:{color:"#59c1a6",n:12,name:"DPP · CPR",desc:"DPP — règlement Produits de Construction (CPR)"},
-  ENERGY_STAR:{color:"#5bc0eb",n:11,name:"ENERGY STAR",desc:"Labels d'efficacité énergétique (US EPA)"},
-  HS_CODE:{color:"#c98bdb",n:10,name:"Code SH",desc:"Système Harmonisé — codes douaniers (OMD)"},
-  UNSPSC:{color:"#b0a1e0",n:10,name:"UNSPSC",desc:"Classification produits/services (ONU)"},
-  MASTERFORMAT:{color:"#d99a6c",n:8,name:"MasterFormat",desc:"Nomenclature construction (CSI, Amérique du Nord)"},
-  AHRI:{color:"#e07a7a",n:6,name:"AHRI",desc:"Certification équipements CVC (US)"},
-  DPP_BATTERY:{color:"#8fd14f",n:2,name:"DPP · Battery",desc:"Battery Passport — règlement batteries UE"},
-  ISO:{color:"#f4a259",n:49,name:"ISO",desc:"Normes internationales — performance, essais, méthodes"},
-  IEC:{color:"#a685e2",n:32,name:"IEC",desc:"Normes électrotechniques internationales — sécurité, PV, batteries, bornes VE"}
-};
-const REF_ORDER = ["IFC","ETIM","CEE_FR","DPP_ESPR","DPP_CPR","ENERGY_STAR","HS_CODE","UNSPSC","MASTERFORMAT","AHRI","DPP_BATTERY","ISO","IEC"];
+const SB_URL = 'https://moysjyogayjnmbvimivu.supabase.co/rest/v1/';
+const SB_KEY = 'sb_publishable_Toq1OtZQy2y93xXuuq14fQ_rTh48yTG'; // clé publiable (lecture seule, RLS)
 
-function refBadge(r){
-  const m=REF_META[r]||{color:"#657089"};
-  return `<span class="ref" style="color:${m.color};border-color:${m.color}55;background:${m.color}14" title="${(m.name||r)}">${r}</span>`;
+// métadonnées statiques des référentiels (couleur + libellé + description) ; les comptes viennent du live
+const REF_INFO = {
+  IFC:{color:"#4fd1c5",name:"IFC 4.3",desc:"Modèle openBIM (buildingSMART) — entités & predefined types"},
+  ETIM:{color:"#7c9cf5",name:"ETIM",desc:"Classification technique produits (négoce, industrie)"},
+  CEE_FR:{color:"#e0b341",name:"CEE (France)",desc:"Certificats d'Économies d'Énergie — fiches BAR-TH / BAR-EN"},
+  DPP_ESPR:{color:"#3ddc97",name:"DPP · ESPR",desc:"Digital Product Passport — cadre écoconception (ESPR)"},
+  DPP_CPR:{color:"#59c1a6",name:"DPP · CPR",desc:"DPP — règlement Produits de Construction (CPR)"},
+  ENERGY_STAR:{color:"#5bc0eb",name:"ENERGY STAR",desc:"Labels d'efficacité énergétique (US EPA)"},
+  HS_CODE:{color:"#c98bdb",name:"Code SH",desc:"Système Harmonisé — codes douaniers (OMD)"},
+  UNSPSC:{color:"#b0a1e0",name:"UNSPSC",desc:"Classification produits/services (ONU)"},
+  MASTERFORMAT:{color:"#d99a6c",name:"MasterFormat",desc:"Nomenclature construction (CSI, Amérique du Nord)"},
+  AHRI:{color:"#e07a7a",name:"AHRI",desc:"Certification équipements CVC (US)"},
+  DPP_BATTERY:{color:"#8fd14f",name:"DPP · Battery",desc:"Battery Passport — règlement batteries UE"},
+  ISO:{color:"#f4a259",name:"ISO",desc:"Normes internationales — performance, essais, méthodes"},
+  IEC:{color:"#a685e2",name:"IEC",desc:"Normes électrotechniques internationales — sécurité, PV, batteries, bornes VE"}
+};
+const PREF_ORDER = ["IFC","ETIM","CEE_FR","DPP_ESPR","DPP_CPR","ENERGY_STAR","HS_CODE","UNSPSC","MASTERFORMAT","AHRI","DPP_BATTERY","ISO","IEC"];
+
+let CATS=[], SUBS=[], COV={}, REF_META={}, REF_ORDER=[];
+let activeRef=null, query="";
+
+async function sbGet(path){
+  const r = await fetch(SB_URL+path, {headers:{apikey:SB_KEY, Authorization:'Bearer '+SB_KEY}});
+  if(!r.ok) throw new Error('HTTP '+r.status+' sur '+path);
+  return r.json();
 }
 
-let activeRef = null;
-let query = "";
+async function load(){
+  document.getElementById('tree').innerHTML='<div class="state"><div class="spin"></div>Chargement des données depuis Supabase…</div>';
+  try{
+    const [cats, subs, maps] = await Promise.all([
+      sbGet('arpent_category?select=code,label_fr,label_en,primary_trade_fr,regulated_by_default,typical_lifespan_years&order=position'),
+      sbGet('arpent_subcategory?select=code,category_code,label_fr,cee_eligible&order=code'),
+      sbGet('arpent_referential_mapping?select=subcategory_code,referential&limit=5000')
+    ]);
+    CATS = cats.map(c=>({c:c.code, fr:c.label_fr, en:c.label_en, t:c.primary_trade_fr, r:c.regulated_by_default, l:c.typical_lifespan_years}));
+    SUBS = subs.map(s=>[s.code, s.category_code, s.label_fr, s.cee_eligible]);
+    // coverage + per-referential totals
+    COV={}; const refTotals={};
+    maps.forEach(m=>{
+      const c=COV[m.subcategory_code] || (COV[m.subcategory_code]={refs:[],n:0});
+      c.n++; if(!c.refs.includes(m.referential)) c.refs.push(m.referential);
+      refTotals[m.referential]=(refTotals[m.referential]||0)+1;
+    });
+    // build ordered referential list + meta
+    const present = Object.keys(refTotals);
+    REF_ORDER = PREF_ORDER.filter(r=>present.includes(r)).concat(present.filter(r=>!PREF_ORDER.includes(r)).sort());
+    REF_META={};
+    REF_ORDER.forEach(r=>{
+      const info=REF_INFO[r]||{color:"#8896b3",name:r,desc:"Référentiel externe"};
+      REF_META[r]={...info, n:refTotals[r]};
+    });
+    Object.values(COV).forEach(v=>v.refs.sort((a,b)=>REF_ORDER.indexOf(a)-REF_ORDER.indexOf(b)));
+
+    document.getElementById('kCat').textContent=CATS.length;
+    document.getElementById('kSub').textContent=SUBS.length;
+    document.getElementById('kMap').textContent=maps.length;
+    document.getElementById('kRef').textContent=REF_ORDER.length;
+    document.getElementById('legendTitle').textContent='Les '+REF_ORDER.length+' référentiels';
+    const now=new Date();
+    document.getElementById('loadedAt').textContent=' · '+now.toLocaleDateString('fr-FR')+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    buildChips(); buildLegend(); document.getElementById('legendBox').hidden=false; render();
+  }catch(err){
+    document.getElementById('tree').innerHTML='<div class="state err">Impossible de charger les données ('+err.message+').<br>La base est peut-être injoignable ou bloquée par un filtre réseau.<br><button onclick="load()">Réessayer</button></div>';
+    document.getElementById('legendBox').hidden=true;
+  }
+}
+
+function refBadge(r){
+  const m=REF_META[r]||{color:"#8896b3"};
+  return '<span class="ref" style="color:'+m.color+';border-color:'+m.color+'55;background:'+m.color+'14" title="'+(m.name||r)+'">'+r+'</span>';
+}
 
 function render(){
-  const tree=document.getElementById('tree');
-  tree.innerHTML='';
+  const tree=document.getElementById('tree'); tree.innerHTML='';
   const ql=query.trim().toLowerCase();
   let shownSubs=0, shownCats=0;
   CATS.forEach(cat=>{
     const subs=SUBS.filter(s=>s[1]===cat.c).filter(s=>{
       const cov=COV[s[0]]||{refs:[]};
       if(activeRef && !cov.refs.includes(activeRef)) return false;
-      if(ql){
-        const hay=(s[0]+' '+s[2]+' '+cat.fr+' '+cov.refs.join(' ')).toLowerCase();
-        if(!hay.includes(ql)) return false;
-      }
+      if(ql){ const hay=(s[0]+' '+s[2]+' '+cat.fr+' '+cov.refs.join(' ')).toLowerCase(); if(!hay.includes(ql)) return false; }
       return true;
     });
     if(subs.length===0) return;
     shownCats++; shownSubs+=subs.length;
     const totalMap=subs.reduce((a,s)=>a+((COV[s[0]]||{n:0}).n),0);
-    const open = (ql||activeRef) ? 'open':'';
-    const el=document.createElement('div');
-    el.className='cat '+open;
-    el.innerHTML=`
-      <div class="cat-head">
-        <span class="cat-code">${cat.c}</span>
-        <div class="cat-title">
-          <h3>${cat.fr}</h3>
-          <div class="meta"><b>${cat.t}</b> · durée de vie ~${cat.l} ans <span class="reg ${cat.r?'y':'n'}">${cat.r?'réglementé':'non régl.'}</span></div>
-        </div>
-        <span class="cat-n">${subs.length} sous-cat. · ${totalMap} mappings</span>
-        <span class="caret">▸</span>
-      </div>
-      <div class="subs">
-        ${subs.map(s=>{
-          const cov=COV[s[0]]||{refs:[],n:0};
-          return `<div class="sub">
-            <span class="sub-code">${s[0]}</span>
-            <div class="sub-body">
-              <div class="sub-label">${s[2]}</div>
-              <div class="sub-refs">${cov.refs.slice().sort((a,b)=>REF_ORDER.indexOf(a)-REF_ORDER.indexOf(b)).map(refBadge).join('')}</div>
-            </div>
-            ${s[3]?'<span class="cee">CEE éligible</span>':''}
-            <span class="sub-n">${cov.n} map.</span>
-          </div>`;
-        }).join('')}
-      </div>`;
+    const open=(ql||activeRef)?'open':'';
+    const el=document.createElement('div'); el.className='cat '+open;
+    el.innerHTML='<div class="cat-head"><span class="cat-code">'+cat.c+'</span>'
+      +'<div class="cat-title"><h3>'+cat.fr+'</h3><div class="meta"><b>'+(cat.t||'')+'</b>'
+      +(cat.l?' · durée de vie ~'+cat.l+' ans':'')+' <span class="reg '+(cat.r?'y':'n')+'">'+(cat.r?'réglementé':'non régl.')+'</span></div></div>'
+      +'<span class="cat-n">'+subs.length+' sous-cat. · '+totalMap+' mappings</span><span class="caret">▸</span></div>'
+      +'<div class="subs">'+subs.map(s=>{
+        const cov=COV[s[0]]||{refs:[],n:0};
+        return '<div class="sub"><span class="sub-code">'+s[0]+'</span><div class="sub-body"><div class="sub-label">'+s[2]+'</div>'
+          +'<div class="sub-refs">'+cov.refs.map(refBadge).join('')+'</div></div>'
+          +(s[3]?'<span class="cee">CEE éligible</span>':'')+'<span class="sub-n">'+cov.n+' map.</span></div>';
+      }).join('')+'</div>';
     el.querySelector('.cat-head').addEventListener('click',()=>el.classList.toggle('open'));
     tree.appendChild(el);
   });
   if(shownCats===0) tree.innerHTML='<div class="empty">Aucun résultat pour ce filtre.</div>';
-  document.getElementById('countNote').textContent =
-    `${shownCats} catégorie(s) · ${shownSubs} sous-catégorie(s) affichée(s)` + (activeRef?` · référentiel ${activeRef}`:'') + (ql?` · « ${query} »`:'');
+  document.getElementById('countNote').textContent=shownCats+' catégorie(s) · '+shownSubs+' sous-catégorie(s) affichée(s)'+(activeRef?' · référentiel '+activeRef:'')+(ql?' · « '+query+' »':'');
 }
 
 function buildChips(){
-  const box=document.getElementById('refChips');
+  const box=document.getElementById('refChips'); box.innerHTML='';
   REF_ORDER.forEach(r=>{
-    const m=REF_META[r];
-    const c=document.createElement('span');
-    c.className='chip'; c.textContent=`${r} ${m.n}`;
-    c.style.setProperty('--rc',m.color);
+    const c=document.createElement('span'); c.className='chip'; c.textContent=r+' '+REF_META[r].n;
     c.addEventListener('click',()=>{
       if(activeRef===r){activeRef=null;c.classList.remove('on');}
       else{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));activeRef=r;c.classList.add('on');}
@@ -368,14 +279,14 @@ function buildChips(){
   });
 }
 function buildLegend(){
-  const g=document.getElementById('legendGrid');
-  g.innerHTML=REF_ORDER.map(r=>{
+  document.getElementById('legendGrid').innerHTML=REF_ORDER.map(r=>{
     const m=REF_META[r];
-    return `<div class="leg">${refBadge(r)}<div class="d"><b>${m.name}</b> <span class="c">· ${m.n} mappings</span><br>${m.desc}</div></div>`;
+    return '<div class="leg">'+refBadge(r)+'<div class="d"><b>'+m.name+'</b> <span class="c">· '+m.n+' mappings</span><br>'+m.desc+'</div></div>';
   }).join('');
 }
 document.getElementById('q').addEventListener('input',e=>{query=e.target.value;render();});
-buildChips(); buildLegend(); render();
+document.getElementById('refresh').addEventListener('click',load);
+load();
 </script>
 </body>
 </html>
