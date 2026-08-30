@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arpent · Catalogue produits</title>
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1520; --card:#141b28; --line:#232c3d;
+    --ink:#e9edf4; --mut:#9aa6bd; --dim:#657089;
+    --gold:#d4af37; --acc:#4fd1c5; --acc2:#7c9cf5; --ok:#3ddc97; --warn:#e0b341; --err:#e07a7a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #16233b 0%, var(--bg) 55%) fixed;
+    color:var(--ink); line-height:1.5; min-height:100vh; padding-bottom:70px;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 22px;}
+  header{padding:46px 0 10px;}
+  .logo{font-size:.74rem; font-weight:800; letter-spacing:.42em; text-transform:uppercase; color:var(--gold);}
+  h1{font-size:clamp(1.7rem,4vw,2.4rem); font-weight:750; letter-spacing:-.02em; margin:12px 0 6px;}
+  h1 b{color:var(--acc);}
+  .sub{color:var(--mut); font-size:1rem; max-width:720px;}
+  .live{display:inline-flex; align-items:center; gap:7px; font-size:.72rem; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ok); border:1px solid rgba(61,220,151,.3); background:rgba(61,220,151,.08);
+    border-radius:999px; padding:4px 11px; margin-top:14px;}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,151,.5)}70%{box-shadow:0 0 0 7px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
+  .live .t{color:var(--dim);font-weight:600;text-transform:none;letter-spacing:0;}
+  .live button{background:none;border:none;color:var(--acc);font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;}
+
+  .kpis{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 6px;}
+  .kpi{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:12px;padding:12px 18px;min-width:120px;}
+  .kpi .n{font-size:1.5rem;font-weight:750;color:var(--acc);}
+  .kpi .l{font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;}
+
+  .toolbar{position:sticky;top:0;z-index:20;background:rgba(10,14,20,.86);backdrop-filter:blur(10px);
+    padding:14px 0 12px;margin:14px 0 8px;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  #q{flex:1;min-width:220px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:.95rem;padding:11px 14px;outline:none;}
+  #q:focus{border-color:var(--acc);}
+  select{background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:.88rem;padding:10px 12px;outline:none;cursor:pointer;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{font-size:.74rem;font-weight:700;border:1px solid var(--line);background:var(--bg2);color:var(--mut);border-radius:999px;padding:6px 12px;cursor:pointer;transition:.15s;}
+  .chip:hover{border-color:#38445c;color:var(--ink);}
+  .chip.on{background:rgba(79,209,197,.14);border-color:var(--acc);color:var(--acc);}
+  .count-note{font-size:.8rem;color:var(--dim);margin:2px 2px 14px;}
+
+  table{width:100%;border-collapse:collapse;}
+  thead th{text-align:left;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:700;padding:8px 12px;border-bottom:1px solid var(--line);position:sticky;top:64px;background:var(--bg);}
+  tbody td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top;font-size:.9rem;}
+  tbody tr:hover{background:rgba(255,255,255,.015);}
+  .man{font-weight:650;}
+  .model{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82rem;color:var(--acc2);}
+  .catb{font-size:.7rem;color:var(--mut);}
+  .catb .code{font-family:'SF Mono',ui-monospace,Menlo,monospace;color:var(--dim);}
+  .badge{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.03em;border-radius:5px;padding:3px 8px;border:1px solid;white-space:nowrap;}
+  .en-A{color:#3ddc97;border-color:#3ddc9755;background:#3ddc9714;}
+  .en-B{color:#4fd1c5;border-color:#4fd1c555;background:#4fd1c514;}
+  .en-C{color:#5bc0eb;border-color:#5bc0eb55;background:#5bc0eb14;}
+  .en-D{color:#e0b341;border-color:#e0b34155;background:#e0b34114;}
+  .en-E,.en-F,.en-G{color:#e07a7a;border-color:#e07a7a55;background:#e07a7a14;}
+  .en-x{color:var(--dim);border-color:var(--line);background:var(--bg2);}
+  .src{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--acc2);border:1px solid #7c9cf555;background:#7c9cf514;border-radius:5px;padding:2px 7px;}
+  .dpp{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--gold);border:1px solid rgba(212,175,55,.4);background:rgba(212,175,55,.1);border-radius:5px;padding:2px 7px;text-decoration:none;}
+  .ext{color:var(--acc);text-decoration:none;font-size:.8rem;}
+  .ext:hover{text-decoration:underline;}
+  .gwp{color:var(--mut);font-size:.82rem;}
+
+  .state{padding:50px 20px;text-align:center;color:var(--mut);}
+  .state .spin{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:rot .8s linear infinite;margin:0 auto 14px;}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .state.err{color:var(--err);}
+  .state.err button{margin-top:12px;background:var(--bg2);border:1px solid var(--err);color:var(--err);border-radius:8px;padding:8px 16px;font:inherit;font-weight:700;cursor:pointer;}
+  .tablewrap{overflow-x:auto;}
+
+  .note{background:linear-gradient(120deg,#16233b,#0f1520);border:1px solid #2a3958;border-radius:16px;padding:18px 20px;margin:24px 0;color:var(--mut);font-size:.9rem;}
+  .note b{color:var(--ink);}
+  footer{margin-top:34px;padding-top:20px;border-top:1px solid var(--line);font-size:.8rem;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  footer b{color:var(--mut);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">Arpent · Registre produit</div>
+    <h1>Catalogue <b>produits</b></h1>
+    <p class="sub">Les fiches produit du registre <span style="color:var(--acc2)">arpent_asset_type</span>, lues en direct depuis Supabase. Alimenté par le connecteur EPREL et rattaché à la taxonomie Arpent.</p>
+    <div class="live"><span class="dot"></span>En direct<span class="t" id="loadedAt"></span> · <button id="refresh">Rafraîchir</button></div>
+    <div class="kpis">
+      <div class="kpi"><div class="n" id="kProd">—</div><div class="l">Produits</div></div>
+      <div class="kpi"><div class="n" id="kBrand">—</div><div class="l">Marques</div></div>
+      <div class="kpi"><div class="n" id="kDpp">—</div><div class="l">Avec passeport DPP</div></div>
+      <div class="kpi"><div class="n" id="kCat">—</div><div class="l">Sous-catégories</div></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input id="q" type="text" placeholder="Rechercher une marque, un modèle… (ex. LG, Vallox)">
+    <select id="fCat"><option value="">Toutes catégories</option></select>
+    <select id="fMan"><option value="">Toutes marques</option></select>
+    <div class="chips" id="fClass"></div>
+    <span class="chip" id="fDpp">Avec DPP</span>
+  </div>
+  <div class="count-note" id="countNote"></div>
+
+  <div id="content"><div class="state"><div class="spin"></div>Chargement du catalogue depuis Supabase…</div></div>
+
+  <div class="note">
+    <b>À savoir :</b> ce catalogue est en lecture publique (clé publiable + RLS Supabase). Chaque produit peut porter un <span class="dpp" style="cursor:default">DPP</span> — son passeport numérique (cadre ESPR) — et un lien vers sa fiche EPREL d'origine. Lance le connecteur EPREL pour en ajouter&nbsp;: le catalogue se met à jour tout seul.
+  </div>
+
+  <footer>
+    <span>© 2026 <b>Arpent</b> — hosted by CLIMATE SASU · Paris</span>
+    <span><b>arpentai.com</b> · Read the real. Proof moves money.</span>
+  </footer>
+</div>
+
+<script>
+const SB_URL='https://moysjyogayjnmbvimivu.supabase.co/rest/v1/';
+const SB_KEY='sb_publishable_Toq1OtZQy2y93xXuuq14fQ_rTh48yTG';
+async function sbGet(p){const r=await fetch(SB_URL+p,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});if(!r.ok)throw new Error('HTTP '+r.status+' '+p);return r.json();}
+
+let PRODUCTS=[], CATLABEL={}, SUBLABEL={}, DPPSET=new Set(), DPPID={};
+let query='', fCat='', fMan='', fClass='', fDppOnly=false;
+
+function clsKey(c){ if(!c) return 'x'; const L=c[0].toUpperCase(); return 'ABCDEFG'.includes(L)?L:'x'; }
+
+async function load(){
+  document.getElementById('content').innerHTML='<div class="state"><div class="spin"></div>Chargement du catalogue depuis Supabase…</div>';
+  try{
+    const [assets, subs, cats, dpps] = await Promise.all([
+      sbGet('arpent_asset_type?select=subcategory_code,manufacturer,model_reference,label,attributes&limit=5000'),
+      sbGet('arpent_subcategory?select=code,category_code,label_fr'),
+      sbGet('arpent_category?select=code,label_fr'),
+      sbGet('v_arpent_dpp_public?select=passport_id,identity&limit=5000')
+    ]);
+    CATLABEL={}; cats.forEach(c=>CATLABEL[c.code]=c.label_fr);
+    SUBLABEL={}; subs.forEach(s=>SUBLABEL[s.code]={fr:s.label_fr, cat:s.category_code});
+    DPPSET=new Set(); DPPID={};
+    dpps.forEach(d=>{ const id=d.identity||{}; const k=((id.manufacturer||'')+'|'+(id.model||'')).toLowerCase(); if(k!=='|'){DPPSET.add(k); DPPID[k]=d.passport_id;} });
+    PRODUCTS=assets.map(a=>{
+      const at=a.attributes||{};
+      const k=((a.manufacturer||'')+'|'+(a.model_reference||'')).toLowerCase();
+      return {man:a.manufacturer||'—', model:a.model_reference||'', sub:a.subcategory_code,
+        cls:at.energy_class||null, gwp:(at.refrigerant_gwp??null), source:at.source||null, eprelUrl:at.eprel_url||null,
+        hasDpp:DPPSET.has(k), passport:DPPID[k]||null};
+    });
+    // KPIs
+    document.getElementById('kProd').textContent=PRODUCTS.length;
+    document.getElementById('kBrand').textContent=new Set(PRODUCTS.map(p=>p.man)).size;
+    document.getElementById('kDpp').textContent=PRODUCTS.filter(p=>p.hasDpp).length;
+    document.getElementById('kCat').textContent=new Set(PRODUCTS.map(p=>p.sub)).size;
+    const now=new Date(); document.getElementById('loadedAt').textContent=' · '+now.toLocaleDateString('fr-FR')+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    buildFilters(); render();
+  }catch(err){
+    document.getElementById('content').innerHTML='<div class="state err">Impossible de charger le catalogue ('+err.message+').<br><button onclick="load()">Réessayer</button></div>';
+  }
+}
+
+function buildFilters(){
+  const csel=document.getElementById('fCat');
+  const catSet=[...new Set(PRODUCTS.map(p=>SUBLABEL[p.sub]?SUBLABEL[p.sub].cat:null).filter(Boolean))].sort();
+  csel.innerHTML='<option value="">Toutes catégories</option>'+catSet.map(c=>'<option value="'+c+'">'+(CATLABEL[c]||c)+'</option>').join('');
+  const msel=document.getElementById('fMan');
+  const manSet=[...new Set(PRODUCTS.map(p=>p.man))].sort();
+  msel.innerHTML='<option value="">Toutes marques</option>'+manSet.map(m=>'<option>'+m+'</option>').join('');
+  const clsBox=document.getElementById('fClass'); clsBox.innerHTML='';
+  [...new Set(PRODUCTS.map(p=>clsKey(p.cls)).filter(k=>k!=='x'))].sort().forEach(k=>{
+    const c=document.createElement('span'); c.className='chip'; c.textContent='Classe '+k;
+    c.addEventListener('click',()=>{ if(fClass===k){fClass='';c.classList.remove('on');} else {clsBox.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));fClass=k;c.classList.add('on');} render(); });
+    clsBox.appendChild(c);
+  });
+}
+
+function render(){
+  const ql=query.trim().toLowerCase();
+  let rows=PRODUCTS.filter(p=>{
+    if(fCat && (!SUBLABEL[p.sub] || SUBLABEL[p.sub].cat!==fCat)) return false;
+    if(fMan && p.man!==fMan) return false;
+    if(fClass && clsKey(p.cls)!==fClass) return false;
+    if(fDppOnly && !p.hasDpp) return false;
+    if(ql && !(p.man+' '+p.model+' '+(p.sub||'')).toLowerCase().includes(ql)) return false;
+    return true;
+  }).sort((a,b)=> a.man.localeCompare(b.man) || a.model.localeCompare(b.model));
+
+  const content=document.getElementById('content');
+  if(rows.length===0){ content.innerHTML='<div class="state">Aucun produit pour ce filtre.</div>'; }
+  else{
+    content.innerHTML='<div class="tablewrap"><table><thead><tr>'
+      +'<th>Marque</th><th>Modèle</th><th>Catégorie</th><th>Classe énergie</th><th>GWP fluide</th><th>Source</th><th>Passeport</th></tr></thead><tbody>'
+      +rows.map(p=>{
+        const sl=SUBLABEL[p.sub]||{fr:p.sub,cat:''};
+        const catName=CATLABEL[sl.cat]||sl.cat||'';
+        const cls=p.cls?'<span class="badge en-'+clsKey(p.cls)+'">'+p.cls+'</span>':'<span class="badge en-x">—</span>';
+        const gwp=(p.gwp!==null&&p.gwp!==undefined)?'<span class="gwp">'+p.gwp+'</span>':'<span class="gwp" style="color:var(--dim)">—</span>';
+        const src=p.source?('<span class="src">'+p.source+'</span>'+(p.eprelUrl?' <a class="ext" href="'+p.eprelUrl+'" target="_blank" rel="noopener">↗</a>':'')):'';
+        const dpp=p.hasDpp?('<span class="dpp">DPP</span>'):'<span style="color:var(--dim);font-size:.8rem">—</span>';
+        return '<tr><td class="man">'+p.man+'</td><td class="model">'+p.model+'</td>'
+          +'<td class="catb"><span class="code">'+p.sub+'</span><br>'+sl.fr+(catName?' · '+catName:'')+'</td>'
+          +'<td>'+cls+'</td><td>'+gwp+'</td><td>'+src+'</td><td>'+dpp+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+  document.getElementById('countNote').textContent=rows.length+' produit(s) affiché(s) sur '+PRODUCTS.length
+    +(fCat?' · '+(CATLABEL[fCat]||fCat):'')+(fMan?' · '+fMan:'')+(fClass?' · classe '+fClass:'')+(fDppOnly?' · avec DPP':'')+(ql?' · « '+query+' »':'');
+}
+
+document.getElementById('q').addEventListener('input',e=>{query=e.target.value;render();});
+document.getElementById('fCat').addEventListener('change',e=>{fCat=e.target.value;render();});
+document.getElementById('fMan').addEventListener('change',e=>{fMan=e.target.value;render();});
+document.getElementById('fDpp').addEventListener('click',function(){fDppOnly=!fDppOnly;this.classList.toggle('on',fDppOnly);render();});
+document.getElementById('refresh').addEventListener('click',load);
+load();
+</script>
+</body>
+</html>
