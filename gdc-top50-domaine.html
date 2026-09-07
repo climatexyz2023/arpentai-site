@@ -44,7 +44,25 @@ input[type=search]{min-width:180px;}
 .ask b{color:var(--acc2);}
 .empty{color:var(--dim);text-align:center;padding:40px;font-size:.9rem;}
 footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:.76rem;color:var(--dim);}
-</style></head><body><div class="wrap">
+</style><style id="apnav-css">
+.apnav{position:sticky;top:0;z-index:99999;background:rgba(10,14,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #232c3d;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;}
+.apnav .apin{max-width:1180px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:12px;position:relative;}
+.apnav .apbrand{font-weight:800;letter-spacing:.34em;font-size:.7rem;text-transform:uppercase;color:#d4af37;text-decoration:none;white-space:nowrap;}
+.apnav .apsp{flex:1;}
+.apnav .aplinks{display:flex;gap:3px;flex-wrap:wrap;}
+.apnav a.aplnk{color:#9aa6bd;text-decoration:none;font-size:.82rem;font-weight:600;padding:6px 11px;border-radius:8px;white-space:nowrap;transition:.12s;}
+.apnav a.aplnk:hover{color:#e9edf4;background:#141b28;}
+.apnav a.aplnk.apon{color:#4fd1c5;background:rgba(79,209,197,.10);}
+.apnav .apburger{display:none;background:none;border:1px solid #2a3446;border-radius:8px;color:#e9edf4;font-size:1.05rem;line-height:1;padding:7px 11px;cursor:pointer;}
+@media(max-width:820px){
+ .apnav .aplinks{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:#0f1520;border-bottom:1px solid #232c3d;padding:8px;gap:2px;}
+ .apnav .aplinks.apopen{display:flex;}
+ .apnav a.aplnk{padding:11px 12px;font-size:.9rem;}
+ .apnav .apburger{display:block;}
+}
+</style>
+</head><body>
+<nav class="apnav"><div class="apin"><a class="apbrand" href="/">Arpent</a><span class="apsp"></span><button class="apburger" aria-label="Menu" onclick="var l=this.closest('.apin').querySelector('.aplinks');l.classList.toggle('apopen')">☰</button><div class="aplinks"><a class="aplnk" href="/">Home</a><a class="aplnk" href="/events-hub.html">Events</a><a class="aplnk" href="/autorites-centenaires.html">Authorities</a><a class="aplnk" href="/arpent-taxonomie-explorer.html">Taxonomy</a><a class="aplnk" href="/catalogue-produits.html">Products</a><a class="aplnk apon" href="/gdc-top50.html">GDC Top 50</a></div></div></nav><div class="wrap">
 <header>
 <div class="logo">Arpent · GDC Genève 2026</div>
 <h1>Top 50 — les personnes à rencontrer pour l'<b>Asset ID</b></h1>
