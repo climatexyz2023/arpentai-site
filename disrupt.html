@@ -156,9 +156,8 @@ input[type=text]{flex:1;min-width:180px;}
   <div class="frow"><span class="flabel">Arpent fit</span><span id="qualChipsS"></span></div>
   <div class="frow"><span class="flabel">Day</span><span id="dayChips"></span></div>
   <div class="frow"><span class="flabel">Time</span><span id="timeChips"></span></div>
+  <div class="frow"><span class="flabel">Stage</span><span id="stageChips"></span></div>
   <div class="frow">
-    <span class="flabel">Stage</span>
-    <select id="stageSel" onchange="render()"></select>
     <label class="toggle"><input type="checkbox" id="hideOps" checked onchange="render()"> Hide logistics (registration, expo, lounge)</label>
     <input type="text" id="qSessions" placeholder="Search sessions, speakers, companies…" oninput="render()">
   </div>
@@ -170,7 +169,8 @@ input[type=text]{flex:1;min-width:180px;}
   <div class="frow"><span class="flabel">Arpent fit</span><span id="qualChipsP"></span></div>
   <div class="frow">
     <span class="flabel">Company</span>
-    <select id="orgSel" onchange="render()"></select>
+    <select id="orgSel" onchange="addOrg()"></select>
+    <span id="orgChips" class="chips"></span>
     <span class="flabel" style="margin-left:8px">Sort</span>
     <select id="sortSel" onchange="render()">
       <option value="name">Name (A→Z)</option>
@@ -196,7 +196,7 @@ const PLAB={must:'Must',high:'High',medium:'Medium',low:'Low'};
 const PCATS=['must','high','medium','low'];
 let view='sessions';
 // multi-select filter sets (empty set = "All")
-const F={day:new Set(),time:new Set(),qual:new Set(),prio:new Set()};
+const F={day:new Set(),time:new Set(),qual:new Set(),prio:new Set(),loc:new Set(),org:new Set()};
 const anyOf=(set,v)=>set.size===0||set.has(v);
 const anyArr=(set,arr)=>set.size===0||(arr||[]).some(v=>set.has(v));
 
@@ -225,7 +225,7 @@ function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-
 })();
 
 // ---- multi-select chip system (empty set = All) ----
-const CHIPROWS=[['prioChipsS','prio'],['prioChipsP','prio'],['qualChipsS','qual'],['qualChipsP','qual'],['dayChips','day'],['timeChips','time']];
+const CHIPROWS=[['prioChipsS','prio'],['prioChipsP','prio'],['qualChipsS','qual'],['qualChipsP','qual'],['dayChips','day'],['timeChips','time'],['stageChips','loc']];
 function chipHTML(kind,items){
   let h=`<button class="chip on" data-v="all" onclick="toggleF('${kind}','all')">All</button>`;
   items.forEach(([v,lab])=>{h+=`<button class="chip" data-v="${v}" onclick="toggleF('${kind}','${v}')">${lab}</button>`;});
@@ -240,6 +240,8 @@ function buildChips(){
   document.getElementById('qualChipsP').innerHTML=chipHTML('qual',qualItems);
   document.getElementById('dayChips').innerHTML=chipHTML('day',DAYS.map(d=>[d,d]));
   document.getElementById('timeChips').innerHTML=chipHTML('time',[['am','Morning'],['pm','Afternoon']]);
+  const stages=[...new Set(DB.sessions.map(s=>s.loc))].sort();
+  document.getElementById('stageChips').innerHTML=chipHTML('loc',stages.map(s=>[s,esc(s)]));
   syncChips();
 }
 function toggleF(kind,v){
@@ -253,13 +255,23 @@ function syncChips(){
 }
 buildChips();
 
-// stage select
+// company multi-select (dropdown picks, chips remove)
 (function(){
-  const stages=[...new Set(DB.sessions.map(s=>s.loc))].sort();
-  document.getElementById('stageSel').innerHTML='<option value="all">All stages &amp; rooms</option>'+stages.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
   const orgs=[...new Set(DB.speakers.map(s=>s.org))].sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
-  document.getElementById('orgSel').innerHTML='<option value="all">All companies</option>'+orgs.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
+  document.getElementById('orgSel').innerHTML='<option value="all">All companies…</option>'+orgs.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
 })();
+function addOrg(){
+  const sel=document.getElementById('orgSel');
+  const v=sel.value;
+  if(v!=='all') F.org.add(v);
+  sel.value='all';
+  renderOrgChips(); render();
+}
+function renderOrgChips(){
+  const box=document.getElementById('orgChips');
+  box.innerHTML=[...F.org].map(o=>`<button class="chip on" data-org="${esc(o)}" onclick="rmOrg(this.dataset.org)">${esc(o)} ✕</button>`).join('');
+}
+function rmOrg(o){ F.org.delete(o); renderOrgChips(); render(); }
 
 function setView(v){view=v;
   document.getElementById('vSessions').classList.toggle('on',v==='sessions');
@@ -275,6 +287,7 @@ function selHTML(){
   F.qual.forEach(q=>out+=` <span class="qtag q-${q}">${QLAB[q]}</span>`);
   F.day.forEach(d=>out+=` · ${d}`);
   F.time.forEach(t=>out+=` · ${t==='am'?'Morning':'Afternoon'}`);
+  F.loc.forEach(l=>out+=` · ${l}`);
   return out;
 }
 
@@ -283,14 +296,13 @@ const SPK_SESS={};
 DB.sessions.forEach(s=>{(s.speakers||[]).forEach(p=>{(SPK_SESS[p.name]=SPK_SESS[p.name]||[]).push(s);});});
 
 function renderSessions(){
-  const stage=document.getElementById('stageSel').value;
   const hideOps=document.getElementById('hideOps').checked;
   const q=document.getElementById('qSessions').value.trim().toLowerCase();
   const timeOk=s=>F.time.size===0||(F.time.has('am')&&s.startMin<720)||(F.time.has('pm')&&s.startMin>=720);
   let rows=DB.sessions.filter(s=>{
     if(hideOps && s.type==='ops') return false;
     if(!anyOf(F.day,s.day)) return false;
-    if(stage!=='all' && s.loc!==stage) return false;
+    if(!anyOf(F.loc,s.loc)) return false;
     if(!timeOk(s)) return false;
     if(!anyArr(F.qual,s.quals)) return false;
     if(!anyOf(F.prio,s.prio)) return false;
@@ -300,7 +312,7 @@ function renderSessions(){
     }
     return true;
   });
-  document.getElementById('count').innerHTML=`<b>${rows.length}</b> session${rows.length!==1?'s':''}`+selHTML()+(stage!=='all'?` · ${esc(stage)}`:'');
+  document.getElementById('count').innerHTML=`<b>${rows.length}</b> session${rows.length!==1?'s':''}`+selHTML();
   if(!rows.length){document.getElementById('out').innerHTML='<div class="empty">No sessions match these filters.</div>';return;}
   const days = ["Oct 12","Oct 13","Oct 14","Oct 15"].filter(d=>anyOf(F.day,d));
   let html='';
@@ -332,20 +344,19 @@ function renderSessions(){
 }
 
 function renderSpeakers(){
-  const org=document.getElementById('orgSel').value;
   const sort=document.getElementById('sortSel').value;
   const q=document.getElementById('qSpeakers').value.trim().toLowerCase();
   let rows=DB.speakers.filter(p=>{
     if(!anyOf(F.qual,p.qual)) return false;
     if(!anyOf(F.prio,p.prio)) return false;
-    if(org!=='all' && p.org!==org) return false;
+    if(F.org.size && !F.org.has(p.org)) return false;
     if(q){const hay=(p.name+' '+p.role+' '+p.org).toLowerCase();if(hay.indexOf(q)<0)return false;}
     return true;
   });
   rows.sort((a,b)=> sort==='org'
      ? a.org.toLowerCase().localeCompare(b.org.toLowerCase())||a.name.localeCompare(b.name)
      : a.name.split(' ').slice(-1)[0].toLowerCase().localeCompare(b.name.split(' ').slice(-1)[0].toLowerCase()));
-  document.getElementById('count').innerHTML=`<b>${rows.length}</b> speaker${rows.length!==1?'s':''}`+selHTML()+(org!=='all'?` · ${esc(org)}`:'');
+  document.getElementById('count').innerHTML=`<b>${rows.length}</b> speaker${rows.length!==1?'s':''}`+selHTML()+[...F.org].map(o=>` · ${esc(o)}`).join('');
   if(!rows.length){document.getElementById('out').innerHTML='<div class="empty">No speakers match.</div>';return;}
   let html='<div class="sgrid">';
   rows.forEach(p=>{
