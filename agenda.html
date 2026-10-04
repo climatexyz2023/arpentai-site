@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Agenda — Arpent</title>
+<style>
+:root{--bg:#0a0e14;--bg2:#0f1520;--card:#141b28;--card2:#111826;--line:#232c3d;--ink:#e9edf4;--mut:#9aa6bd;--dim:#657089;--gold:#d4af37;--acc:#4fd1c5;
+--id:#7c9cf5;--ai:#e0a34f;--cap:#e0736b;--salon:#b48ff0;--Gregory:#4fd1c5;--Bruno:#e0a34f;--Carole:#d97aa8;--none:#657089}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;background:radial-gradient(1100px 560px at 50% -8%,#16233b 0%,var(--bg) 55%) fixed;color:var(--ink);line-height:1.5;padding-bottom:80px}
+a{color:inherit}
+.apnav{position:sticky;top:0;z-index:99999;background:rgba(10,14,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #232c3d}
+.apnav .apin{max-width:1180px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:12px;position:relative}
+.apnav .apbrand{font-weight:800;letter-spacing:.34em;font-size:.7rem;text-transform:uppercase;color:#d4af37;text-decoration:none;white-space:nowrap}
+.apnav .apsp{flex:1}.apnav .aplinks{display:flex;gap:3px;flex-wrap:wrap}
+.apnav a.aplnk{color:#9aa6bd;text-decoration:none;font-size:.82rem;font-weight:600;padding:6px 11px;border-radius:8px;white-space:nowrap}
+.apnav a.aplnk:hover{color:#e9edf4;background:#141b28}.apnav a.aplnk.apon{color:#4fd1c5;background:rgba(79,209,197,.10)}
+.apnav .apburger{display:none;background:none;border:1px solid #2a3446;border-radius:8px;color:#e9edf4;font-size:1.05rem;line-height:1;padding:7px 11px;cursor:pointer}
+@media(max-width:820px){.apnav .aplinks{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:#0f1520;border-bottom:1px solid #232c3d;padding:8px;gap:2px}.apnav .aplinks.apopen{display:flex}.apnav a.aplnk{padding:11px 12px;font-size:.9rem}.apnav .apburger{display:block}}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{padding:30px 0 6px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:6px 0 4px}h1 b{color:var(--acc)}
+.sub{color:var(--mut);max-width:720px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 10px}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{background:none;border:0;color:var(--mut);font:inherit;font-size:.84rem;font-weight:600;padding:6px 13px;border-radius:7px;cursor:pointer}
+.seg button.on{background:#1d2738;color:var(--ink)}
+.chip{background:var(--card);border:1px solid var(--line);color:var(--mut);font:inherit;font-size:.8rem;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip .d{width:9px;height:9px;border-radius:50%}
+.chip.off{opacity:.38}
+.lbl{font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.cal{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.calhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.calhead h2{font-size:1.15rem;font-weight:800;text-transform:capitalize}
+.nav2 button{background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 11px;font:inherit;font-size:.82rem;cursor:pointer;margin-left:4px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.dow{font-size:.7rem;color:var(--dim);text-align:center;padding:7px 0;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.06em}
+.cell{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 5px 7px;overflow:hidden}
+.cell:nth-child(7n){border-right:0}
+.cell .n{font-size:.74rem;color:var(--mut);margin-bottom:3px}
+.cell.out{background:rgba(0,0,0,.18)}.cell.out .n{color:#3e475a}
+.cell.today .n{background:var(--acc);color:#04201d;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.ev{display:block;font-size:.72rem;font-weight:600;padding:2px 6px;border-radius:5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#0b0f15;background:var(--c)}
+.list{display:flex;flex-direction:column;gap:10px}
+.mh{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin:16px 0 2px}
+.item{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;padding:12px 15px;cursor:pointer}
+.item .tp{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--c)}
+.item .tt{font-weight:800;font-size:1.02rem;margin:2px 0}
+.item .dt{color:var(--mut);font-size:.86rem}
+.who{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.pp{font-size:.74rem;font-weight:700;border-radius:20px;padding:2px 9px;border:1px solid var(--p);color:var(--p)}
+.pp.none{border-style:dashed}
+.past{opacity:.55}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100000;padding:16px}
+.modal.on{display:flex}
+.box{background:var(--bg2);border:1px solid var(--line);border-radius:14px;max-width:460px;width:100%;padding:18px 20px;border-top:4px solid var(--c)}
+.box h3{font-size:1.2rem;margin:4px 0 6px}.box p{color:var(--mut);font-size:.9rem;margin-top:6px}
+.box .act{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{background:var(--acc);color:#04201d;text-decoration:none;font-weight:700;font-size:.85rem;padding:7px 14px;border-radius:9px;border:0;cursor:pointer}
+.btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.note{font-size:.8rem;color:var(--dim);margin-top:14px}
+@media(max-width:700px){.cell{min-height:64px;padding:3px}.ev{font-size:.62rem;padding:1px 4px}h1{font-size:1.6rem}}
+</style></head><body>
+<nav class="apnav"><div class="apin"><a class="apbrand" href="/">Arpent</a><span class="apsp"></span><button class="apburger" aria-label="Menu" onclick="var l=this.closest('.apin').querySelector('.aplinks');l.classList.toggle('apopen')">&#9776;</button><div class="aplinks"><a class="aplnk" href="/">Home</a><a class="aplnk" href="/events-hub.html">Events</a><a class="aplnk apon" href="/agenda.html">Agenda</a><a class="aplnk" href="/disrupt.html">Disrupt</a><a class="aplnk" href="/annuaire.html">Annuaire</a><a class="aplnk" href="/autorites-centenaires.html">Authorities</a><a class="aplnk" href="/arpent-taxonomie-explorer.html">Taxonomy</a><a class="aplnk" href="/catalogue-produits.html">Products</a><a class="aplnk" href="/gdc-top50.html">GDC Top 50</a><a class="aplnk" href="/deck-versions.html">Deck</a></div></div></nav>
+<div class="wrap">
+<header><div><div class="eyebrow">Arpent · Agenda pro</div><h1>Agenda <b>Arpent</b></h1><p class="sub">Les événements professionnels de l'équipe, repris de l'agenda familial (catégorie « Voyage pro »). Filtrez par personne — Gregory, Bruno, Carole — et ouvrez le programme détaillé quand il existe dans l'Events Hub.</p></div></header>
+<div class="bar">
+<div class="seg" id="views"><button data-v="month" class="on">Mois</button><button data-v="list">Liste</button></div>
+<span class="lbl">Qui</span><span id="people"></span>
+<span class="lbl">Thème</span><span id="themes"></span>
+</div>
+<div id="view"></div>
+<p class="note">Source : agenda familial FamilyHub (événements « Voyage pro »), repris le 4 octobre 2026. Les personnes affectées sont celles de l'agenda familial ; Bruno et Carole n'y figurent pas encore sur ces événements.</p>
+</div>
+<div class="modal" id="modal"><div class="box" id="box"></div></div>
+<script>
+const E=[{"t": "EUDI Wallet Launchpad (Commission européenne)", "city": "Bruxelles", "s": "2026-08-08", "e": "2026-08-08", "th": "id", "who": [], "src": "EUDI Wallet Launchpad (European Commission) Bruxelles", "id": 0}, {"t": "Dreamforce", "city": "San Francisco", "s": "2026-09-14", "e": "2026-09-17", "th": "ai", "who": ["Gregory"], "hub": "df", "src": "Dream Force SFO", "id": 1}, {"t": "SILMO Paris", "city": "Paris", "s": "2026-09-25", "e": "2026-09-25", "th": "salon", "who": ["Gregory"], "src": "SILMO Paris 2026", "id": 2}, {"t": "KuppingerCole — AI & Non-Human Identity Impact Day", "city": "Munich", "s": "2026-10-06", "e": "2026-10-06", "th": "id", "who": ["Gregory"], "hub": "kc", "src": "Munich KuppingerCole AI Identity & Non-Human Identity Impact Day", "id": 3}, {"t": "Wave by Vento — Italian Tech Week", "city": "Turin", "s": "2026-10-07", "e": "2026-10-09", "th": "ai", "who": ["Gregory"], "hub": "wave", "src": "Turin Tech", "id": 4}, {"t": "TechCrunch Disrupt", "city": "San Francisco", "s": "2026-10-13", "e": "2026-10-15", "th": "ai", "who": [], "hub": "disrupt", "src": "Tech Crunsh SF", "id": 5}, {"t": "Authenticate 2026 (FIDO Alliance)", "city": "Carlsbad, Californie", "s": "2026-10-19", "e": "2026-10-21", "th": "id", "who": ["Gregory"], "hub": "authenticate", "src": "Authenticate 2026 Californie", "id": 6}, {"t": "Roboflow Summit", "city": "San Francisco", "s": "2026-10-22", "e": "2026-10-22", "th": "ai", "who": ["Gregory"], "src": "Roboflow Summit SFO", "id": 7}, {"t": "FII10 — Future Investment Initiative", "city": "Riyad", "s": "2026-10-25", "e": "2026-10-28", "th": "cap", "who": ["Gregory"], "hub": "fii", "src": "FII Rihyad", "no": "Programme officiel : 26–29 oct. (l'agenda familial indique 25–28).", "id": 8}, {"t": "EUDI Wallet Launchpad (Commission européenne)", "city": "Bruxelles", "s": "2026-10-29", "e": "2026-10-30", "th": "id", "who": ["Gregory"], "src": "EUDI Wallet Launchpad (European Commission) Bruxelles", "id": 9}, {"t": "IIW — Internet Identity Workshop", "city": "San Francisco", "s": "2026-11-02", "e": "2026-11-05", "th": "id", "who": ["Gregory"], "src": "iiw - san francisco", "id": 10}, {"t": "Web Summit", "city": "Lisbonne", "s": "2026-11-09", "e": "2026-11-12", "th": "ai", "who": [], "hub": "websummit", "src": "Web Summit", "id": 11}, {"t": "Slush", "city": "Helsinki", "s": "2026-11-17", "e": "2026-11-21", "th": "cap", "who": ["Gregory"], "hub": "slush", "src": "Slush Helsinki", "id": 12}, {"t": "Paris Week", "city": "Paris", "s": "2026-12-01", "e": "2026-12-04", "th": "salon", "who": [], "src": "PAris Week", "id": 13}, {"t": "Snowflake World Forum", "city": "Paris", "s": "2026-12-02", "e": "2026-12-02", "th": "ai", "who": [], "src": "world forum snowflake", "id": 14}, {"t": "Adopt AI", "city": "Paris", "s": "2026-12-03", "e": "2026-12-04", "th": "ai", "who": [], "src": "Adopt AI", "id": 15}, {"t": "NeurIPS", "city": "Sydney", "s": "2026-12-06", "e": "2026-12-12", "th": "ai", "who": ["Gregory"], "src": "Neurips Sydney", "id": 16}, {"t": "NeurIPS 2026 — Paris", "city": "Paris", "s": "2026-12-09", "e": "2026-12-11", "th": "ai", "who": [], "src": "NeurIPS 2026 Paris", "id": 17}];
+const PEOPLE=["Gregory","Bruno","Carole"];
+const TH={id:"Identité & confiance",ai:"IA & tech",cap:"Capital & investissement",salon:"Salons"};
+const HUB={df:"Dreamforce",kc:"KuppingerCole",wave:"Wave by Vento",disrupt:"TC Disrupt",authenticate:"Authenticate",fii:"FII10",websummit:"Web Summit",slush:"Slush"};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const aP=new Set([...PEOPLE,"none"]),aT=new Set(Object.keys(TH));
+let view="month";const today=new Date();today.setHours(0,0,0,0);
+let cur=new Date(today.getFullYear(),today.getMonth(),1);
+const D=s=>{const[a,b,c]=s.split("-").map(Number);return new Date(a,b-1,c)};
+const fmt=d=>d.toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+const range=x=>x.s==x.e?fmt(D(x.s))+" "+D(x.s).getFullYear():fmt(D(x.s))+" → "+fmt(D(x.e))+" "+D(x.e).getFullYear();
+const days=x=>Math.round((D(x.e)-D(x.s))/864e5)+1;
+function chips(id,keys,set,label,col){const el=$(id);el.innerHTML=keys.map(k=>`<button class="chip" data-v="${k}"><span class="d" style="background:var(--${col(k)})"></span>${label(k)}</button>`).join(" ");
+ el.onclick=e=>{const c=e.target.closest(".chip");if(!c)return;const v=c.dataset.v;if(set.size==keys.length){set.clear();set.add(v)}else if(set.has(v)){set.delete(v);if(!set.size)keys.forEach(k=>set.add(k))}else set.add(v);el.querySelectorAll(".chip").forEach(x=>x.classList.toggle("off",!set.has(x.dataset.v)));render()};}
+chips("people",[...PEOPLE,"none"],aP,k=>k=="none"?"Non affecté":k,k=>k=="none"?"none":k);
+chips("themes",Object.keys(TH),aT,k=>TH[k],k=>k);
+$("views").onclick=e=>{const b=e.target.closest("button");if(!b)return;view=b.dataset.v;$("views").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==b));render()};
+const ok=x=>aT.has(x.th)&&(x.who.length?x.who.some(p=>aP.has(p)):aP.has("none"));
+const whoHtml=x=>x.who.length?x.who.map(p=>`<span class="pp" style="--p:var(--${p})">${p}</span>`).join(""):'<span class="pp none" style="--p:var(--none)">Non affecté</span>';
+function month(){const y=cur.getFullYear(),m=cur.getMonth();const first=new Date(y,m,1);const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+ let h=`<div class="cal"><div class="calhead"><h2>${first.toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}</h2><div class="nav2"><button id="tdy">Aujourd'hui</button><button id="prv">‹</button><button id="nxt">›</button></div></div><div class="grid">`;
+ h+=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map(d=>`<div class="dow">${d}</div>`).join("");
+ for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);
+  const evs=E.filter(x=>ok(x)&&D(x.s)<=d&&d<=D(x.e));
+  h+=`<div class="cell${d.getMonth()!=m?" out":""}${+d==+today?" today":""}"><div class="n">${d.getDate()}</div>${evs.map(x=>`<span class="ev" style="--c:var(--${x.th})" data-id="${x.id}" title="${esc(x.t)}">${esc(x.t)}</span>`).join("")}</div>`;}
+ h+="</div></div>";$("view").innerHTML=h;
+ $("prv").onclick=()=>{cur=new Date(y,m-1,1);render()};$("nxt").onclick=()=>{cur=new Date(y,m+1,1);render()};$("tdy").onclick=()=>{cur=new Date(today.getFullYear(),today.getMonth(),1);render()};}
+function list(){const r=E.filter(ok).sort((a,b)=>a.s.localeCompare(b.s));let h="",lm="";
+ for(const x of r){const mk=D(x.s).toLocaleDateString("fr-FR",{month:"long",year:"numeric"});if(mk!=lm){h+=`<div class="mh">${mk}</div>`;lm=mk}
+  h+=`<div class="item${D(x.e)<today?" past":""}" style="--c:var(--${x.th})" data-id="${x.id}"><div class="tp">${TH[x.th]}</div><div class="tt">${esc(x.t)}</div><div class="dt">📍 ${esc(x.city)} · ${range(x)} (${days(x)} j)</div><div class="who">${whoHtml(x)}</div></div>`;}
+ $("view").innerHTML=`<div class="list">${h||'<p class="sub">Aucun événement pour ces filtres.</p>'}</div>`;}
+function render(){view=="month"?month():list()}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-id]");if(t&&!e.target.closest(".box")){const x=E[+t.dataset.id];
+ $("box").style.setProperty("--c",`var(--${x.th})`);
+ $("box").innerHTML=`<div class="tp" style="color:var(--${x.th});font-size:.72rem;font-weight:800;text-transform:uppercase">${TH[x.th]}</div><h3>${esc(x.t)}</h3><div class="dt" style="color:var(--mut)">📍 ${esc(x.city)}<br>🗓 ${range(x)} (${days(x)} j)</div><div class="who">${whoHtml(x)}</div>${x.no?`<p>⚠️ ${esc(x.no)}</p>`:""}<p style="font-size:.78rem">Dans l'agenda familial : « ${esc(x.src)} »</p><div class="act">${x.hub?`<a class="btn" href="/events-hub.html#${x.hub}">Programme ${HUB[x.hub]} →</a>`:""}<button class="btn g" id="cls">Fermer</button></div>`;
+ $("modal").classList.add("on");$("cls").onclick=()=>$("modal").classList.remove("on");}
+ else if(e.target.id=="modal")$("modal").classList.remove("on");});
+render();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f6e9979913c74e3eb1cb754e9dd1f840"}'></script>
+</body></html>
