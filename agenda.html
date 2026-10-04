@@ -56,15 +56,40 @@ h1{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:6px 0 4px}h1 b{co
 .btn{background:var(--acc);color:#04201d;text-decoration:none;font-weight:700;font-size:.85rem;padding:7px 14px;border-radius:9px;border:0;cursor:pointer}
 .btn.g{background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .note{font-size:.8rem;color:var(--dim);margin-top:14px}
+
+.dsp{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:14px}
+.dtop{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.dtop .g{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.store{font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--mut)}
+.store.ok{color:#5fd39a;border-color:#2e6b4e}.store.loc{color:#e0a34f;border-color:#6b5328}
+.brush button{border:1px solid var(--line);background:var(--card);color:var(--mut);font:inherit;font-size:.78rem;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer}
+.brush button.on{color:#0b0f15}
+.brush button[data-b=dispo].on{background:#5fd39a}.brush button[data-b=maybe].on{background:#e0a34f}.brush button[data-b=busy].on{background:#e0736b}.brush button[data-b=clear].on{background:#9aa6bd}
+.tw{overflow-x:auto}
+table.slots{border-collapse:separate;border-spacing:3px;width:100%;min-width:560px;user-select:none;-webkit-user-select:none}
+table.slots th{font-size:.7rem;color:var(--dim);font-weight:700;padding:2px 4px;text-align:center;white-space:nowrap}
+table.slots th.h{text-align:right;width:46px}
+table.slots td{height:30px;border-radius:6px;background:#0f1520;border:1px solid var(--line);cursor:pointer;position:relative;font-size:.62rem;text-align:center;color:#0b0f15;font-weight:700;touch-action:none}
+td.s-dispo{background:#5fd39a!important}td.s-maybe{background:#e0a34f!important}td.s-busy{background:#e0736b!important}
+td.ev{background:repeating-linear-gradient(45deg,#2a3446,#2a3446 5px,#1b2332 5px,#1b2332 10px)!important;color:#c7cfdd;cursor:not-allowed}
+td.tpl:after{content:"↻";position:absolute;top:1px;right:3px;font-size:.6rem;color:rgba(0,0,0,.45)}
+td.team{cursor:default;color:var(--ink)}
+.dots{display:flex;gap:3px;justify-content:center;align-items:center;height:100%}
+.dots i{width:9px;height:9px;border-radius:50%;background:#2a3446;display:inline-block}
+.dots i.dispo{background:#5fd39a}.dots i.maybe{background:#e0a34f}.dots i.busy,.dots i.ev{background:#e0736b}
+td.best{outline:2px solid #5fd39a}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.74rem;color:var(--mut);margin-top:10px}
+.legend span{display:inline-flex;gap:5px;align-items:center}.legend b{width:11px;height:11px;border-radius:3px;display:inline-block}
+.bestl{margin-top:12px;font-size:.84rem;color:var(--mut)}.bestl b{color:var(--ink)}
 @media(max-width:700px){.cell{min-height:64px;padding:3px}.ev{font-size:.62rem;padding:1px 4px}h1{font-size:1.6rem}}
 </style></head><body>
 <nav class="apnav"><div class="apin"><a class="apbrand" href="/">Arpent</a><span class="apsp"></span><button class="apburger" aria-label="Menu" onclick="var l=this.closest('.apin').querySelector('.aplinks');l.classList.toggle('apopen')">&#9776;</button><div class="aplinks"><a class="aplnk" href="/">Home</a><a class="aplnk" href="/events-hub.html">Events</a><a class="aplnk apon" href="/agenda.html">Agenda</a><a class="aplnk" href="/disrupt.html">Disrupt</a><a class="aplnk" href="/annuaire.html">Annuaire</a><a class="aplnk" href="/autorites-centenaires.html">Authorities</a><a class="aplnk" href="/arpent-taxonomie-explorer.html">Taxonomy</a><a class="aplnk" href="/catalogue-produits.html">Products</a><a class="aplnk" href="/gdc-top50.html">GDC Top 50</a><a class="aplnk" href="/deck-versions.html">Deck</a></div></div></nav>
 <div class="wrap">
 <header><div><div class="eyebrow">Arpent · Agenda pro</div><h1>Agenda <b>Arpent</b></h1><p class="sub">Les événements professionnels de l'équipe, repris de l'agenda familial (catégorie « Voyage pro »). Filtrez par personne — Gregory, Bruno, Carole — et ouvrez le programme détaillé quand il existe dans l'Events Hub.</p></div></header>
 <div class="bar">
-<div class="seg" id="views"><button data-v="month" class="on">Mois</button><button data-v="list">Liste</button></div>
-<span class="lbl">Qui</span><span id="people"></span>
-<span class="lbl">Thème</span><span id="themes"></span>
+<div class="seg" id="views"><button data-v="month" class="on">Mois</button><button data-v="list">Liste</button><button data-v="dispo">👥 Dispos équipe</button></div>
+<span id="filt"><span class="lbl">Qui</span><span id="people"></span>
+<span class="lbl">Thème</span><span id="themes"></span></span>
 </div>
 <div id="view"></div>
 <p class="note">Source : agenda familial FamilyHub (événements « Voyage pro »), repris le 4 octobre 2026. Les personnes affectées sont celles de l'agenda familial ; Bruno et Carole n'y figurent pas encore sur ces événements.</p>
@@ -88,7 +113,8 @@ function chips(id,keys,set,label,col){const el=$(id);el.innerHTML=keys.map(k=>`<
  el.onclick=e=>{const c=e.target.closest(".chip");if(!c)return;const v=c.dataset.v;if(set.size==keys.length){set.clear();set.add(v)}else if(set.has(v)){set.delete(v);if(!set.size)keys.forEach(k=>set.add(k))}else set.add(v);el.querySelectorAll(".chip").forEach(x=>x.classList.toggle("off",!set.has(x.dataset.v)));render()};}
 chips("people",[...PEOPLE,"none"],aP,k=>k=="none"?"Non affecté":k,k=>k=="none"?"none":k);
 chips("themes",Object.keys(TH),aT,k=>TH[k],k=>k);
-$("views").onclick=e=>{const b=e.target.closest("button");if(!b)return;view=b.dataset.v;$("views").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==b));render()};
+$("views").onclick=e=>{const b=e.target.closest("button");if(!b)return;view=b.dataset.v;if(view=="dispo"&&shared===null)loadAV();$("views").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x==b));render()};
+// click handler ignores slot cells
 const ok=x=>aT.has(x.th)&&(x.who.length?x.who.some(p=>aP.has(p)):aP.has("none"));
 const whoHtml=x=>x.who.length?x.who.map(p=>`<span class="pp" style="--p:var(--${p})">${p}</span>`).join(""):'<span class="pp none" style="--p:var(--none)">Non affecté</span>';
 function month(){const y=cur.getFullYear(),m=cur.getMonth();const first=new Date(y,m,1);const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
@@ -103,7 +129,65 @@ function list(){const r=E.filter(ok).sort((a,b)=>a.s.localeCompare(b.s));let h="
  for(const x of r){const mk=D(x.s).toLocaleDateString("fr-FR",{month:"long",year:"numeric"});if(mk!=lm){h+=`<div class="mh">${mk}</div>`;lm=mk}
   h+=`<div class="item${D(x.e)<today?" past":""}" style="--c:var(--${x.th})" data-id="${x.id}"><div class="tp">${TH[x.th]}</div><div class="tt">${esc(x.t)}</div><div class="dt">📍 ${esc(x.city)} · ${range(x)} (${days(x)} j)</div><div class="who">${whoHtml(x)}</div></div>`;}
  $("view").innerHTML=`<div class="list">${h||'<p class="sub">Aucun événement pour ces filtres.</p>'}</div>`;}
-function render(){view=="month"?month():list()}
+
+// ===== Dispos équipe =====
+const SB_URL="https://moysjyogayjnmbvimivu.supabase.co",SB_KEY="sb_publishable_Toq1OtZQy2y93xXuuq14fQ_rTh48yTG",TBL="team_availability";
+const H0=8,H1=20;let me=(()=>{try{return localStorage.getItem("arp_me")||"Gregory"}catch(e){return "Gregory"}})();
+let dmode="me",brush="dispo",tplMode=false,showWE=false,shared=null,AV={},wk=(()=>{const d=new Date(today);d.setDate(d.getDate()-((d.getDay()+6)%7));return d})();
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const key=(p,k,h)=>p+"|"+k+"|"+h;
+function lsLoad(){try{AV=JSON.parse(localStorage.getItem("arp_av")||"{}")}catch(e){AV={}}}
+function lsSave(){try{localStorage.setItem("arp_av",JSON.stringify(AV))}catch(e){}}
+async function sb(path,opt={}){return fetch(SB_URL+"/rest/v1/"+path,Object.assign({},opt,{headers:Object.assign({apikey:SB_KEY,Authorization:"Bearer "+SB_KEY,"Content-Type":"application/json"},opt.headers||{})}))}
+async function loadAV(){try{const r=await sb(TBL+"?select=person,k,slot,status&limit=10000");if(!r.ok)throw 0;const rows=await r.json();AV={};rows.forEach(x=>AV[key(x.person,x.k,x.slot)]=x.status);shared=true}catch(e){shared=false;lsLoad()}render()}
+let queue={},timer=null;
+function setAV(p,k,h,st){const kk=key(p,k,h);if(st=="clear")delete AV[kk];else AV[kk]=st;queue[kk]=st;if(!shared){lsSave();queue={};return}clearTimeout(timer);timer=setTimeout(flush,400)}
+window.addEventListener("pagehide",()=>{if(Object.keys(queue).length)flush()});
+async function flush(){const q=queue;queue={};if(!shared){lsSave();return}
+ const ups=[],dels=[];for(const kk in q){const[p,k,h]=kk.split("|");q[kk]=="clear"?dels.push([p,k,+h]):ups.push({person:p,k,slot:+h,status:q[kk]})}
+ try{if(ups.length)await sb(TBL+"?on_conflict=person,k,slot",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(ups)});
+  for(const[p,k,h]of dels)await sb(`${TBL}?person=eq.${encodeURIComponent(p)}&k=eq.${encodeURIComponent(k)}&slot=eq.${h}`,{method:"DELETE"})}catch(e){console.warn("save failed",e)}}
+function evFor(p,d){return E.find(x=>x.who.includes(p)&&D(x.s)<=d&&d<=D(x.e))}
+function stat(p,d,h){const s1=AV[key(p,iso(d),h)];if(s1)return[s1,false];const s2=AV[key(p,"W"+(((d.getDay()+6)%7)+1),h)];return s2?[s2,true]:[null,false]}
+function dispo(){const ndays=showWE?7:5;const ds=[...Array(ndays)].map((_,i)=>{const d=new Date(wk);d.setDate(wk.getDate()+i);return d});
+ const dn=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+ let h=`<div class="dsp"><div class="dtop"><div class="g"><div class="seg" id="dm"><button data-m="me" class="${dmode=="me"?"on":""}">✏️ Mes dispos</button><button data-m="team" class="${dmode=="team"?"on":""}">👥 Vue équipe</button></div>
+ ${dmode=="me"?`<span class="lbl">Je suis</span><select id="me" style="background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font:inherit">${PEOPLE.map(p=>`<option${p==me?" selected":""}>${p}</option>`).join("")}</select>
+ <span class="brush" id="brush">${[["dispo","Dispo"],["maybe","Peut-être"],["busy","Indispo"],["clear","Effacer"]].map(([b,l])=>`<button data-b="${b}" class="${brush==b?"on":""}">${l}</button>`).join(" ")}</span>
+ <label style="font-size:.8rem;color:var(--mut)"><input type="checkbox" id="tpl" ${tplMode?"checked":""}> Semaine type</label>`:""}</div>
+ <div class="g"><span class="store ${shared?"ok":"loc"}">${shared===null?"Chargement…":shared?"● Partagé avec l'équipe":"● Local à ce navigateur"}</span>
+ ${tplMode&&dmode=="me"?"":`<div class="nav2"><button id="wprev">‹</button><button id="wnow">Cette semaine</button><button id="wnext">›</button></div>`}
+ <label style="font-size:.8rem;color:var(--mut)"><input type="checkbox" id="we" ${showWE?"checked":""}> Week-end</label></div></div>`;
+ h+=`<div style="font-weight:800;margin:2px 0 8px">${tplMode&&dmode=="me"?"Semaine type de "+me+" (s'applique à toutes les semaines, sauf créneaux modifiés)":"Semaine du "+wk.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</div>`;
+ h+=`<div class="tw"><table class="slots" id="slots"><tr><th class="h"></th>${ds.map((d,i)=>`<th>${dn[i]}${tplMode&&dmode=="me"?"":" "+d.getDate()+"/"+(d.getMonth()+1)}</th>`).join("")}</tr>`;
+ const best=[];
+ for(let hr=H0;hr<H1;hr++){h+=`<tr><th class="h">${hr}h</th>`;
+  ds.forEach((d,i)=>{const k=tplMode&&dmode=="me"?"W"+(i+1):iso(d);
+   if(dmode=="me"){const ev=tplMode?null:evFor(me,d);if(ev){h+=`<td class="ev" title="${esc(ev.t)}">${hr==H0?esc(ev.t.split(" ")[0]):""}</td>`;return}
+    const[st,fromTpl]=tplMode?[AV[key(me,k,hr)]||null,false]:stat(me,d,hr);h+=`<td data-k="${k}" data-h="${hr}" class="${st?"s-"+st:""}${fromTpl?" tpl":""}"></td>`}
+   else{let n=0;const dots=PEOPLE.map(p=>{if(evFor(p,d))return'<i class="ev" title="'+p+' : '+esc(evFor(p,d).t)+'"></i>';const[st]=stat(p,d,hr);if(st=="dispo")n++;return`<i class="${st||""}" title="${p} : ${st=="dispo"?"dispo":st=="maybe"?"peut-être":st=="busy"?"indispo":"non renseigné"}"></i>`}).join("");
+    if(n==PEOPLE.length)best.push([d,hr]);h+=`<td class="team${n==PEOPLE.length?" best":""}" style="background:rgba(95,211,154,${n/PEOPLE.length*.35})"><div class="dots">${dots}</div></td>`}});
+  h+="</tr>"}
+ h+=`</table></div>`;
+ h+=dmode=="me"?`<div class="legend"><span><b style="background:#5fd39a"></b>Dispo</span><span><b style="background:#e0a34f"></b>Peut-être</span><span><b style="background:#e0736b"></b>Indispo</span><span><b style="background:repeating-linear-gradient(45deg,#2a3446,#2a3446 3px,#1b2332 3px,#1b2332 6px)"></b>Événement de l'agenda (bloqué)</span><span>↻ vient de la semaine type</span></div><p class="note">Cliquez ou glissez sur les créneaux pour peindre avec le pinceau choisi.</p>`
+  :`<div class="legend">${PEOPLE.map((p,i)=>`<span>Point ${i+1} = ${p}</span>`).join("")}<span><b style="background:#5fd39a"></b>dispo</span><span><b style="background:#e0a34f"></b>peut-être</span><span><b style="background:#e0736b"></b>indispo / en déplacement</span></div>
+   <div class="bestl">${best.length?"<b>Créneaux où toute l'équipe est dispo :</b> "+best.slice(0,8).map(([d,hr])=>d.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric"})+" "+hr+"h").join(" · ")+(best.length>8?" …":""):"Aucun créneau commun cette semaine pour l'instant."}</div>`;
+ h+=shared===false?`<p class="note">⚠️ Mode local : les dispos sont enregistrées dans ce navigateur uniquement. Le partage avec l'équipe s'activera dès que la table <code>team_availability</code> existera dans Supabase.</p>`:"";
+ h+="</div>";$("view").innerHTML=h;
+ $("dm").onclick=e=>{const b=e.target.closest("button");if(b){dmode=b.dataset.m;render()}};
+ if($("me"))$("me").onchange=e=>{me=e.target.value;try{localStorage.setItem("arp_me",me)}catch(x){}render()};
+ if($("brush"))$("brush").onclick=e=>{const b=e.target.closest("button");if(b){brush=b.dataset.b;render()}};
+ if($("tpl"))$("tpl").onchange=e=>{tplMode=e.target.checked;render()};
+ $("we").onchange=e=>{showWE=e.target.checked;render()};
+ if($("wprev")){$("wprev").onclick=()=>{wk.setDate(wk.getDate()-7);render()};$("wnext").onclick=()=>{wk.setDate(wk.getDate()+7);render()};$("wnow").onclick=()=>{wk=new Date(today);wk.setDate(wk.getDate()-((wk.getDay()+6)%7));render()}}
+ if(dmode=="me"){const tb=$("slots");let down=false;
+  const paint=td=>{if(!td||!td.dataset.k)return;setAV(me,td.dataset.k,+td.dataset.h,brush);td.className=brush=="clear"?"":"s-"+brush};
+  tb.addEventListener("pointerdown",e=>{const td=e.target.closest("td");if(!td||!td.dataset.k)return;down=true;paint(td);e.preventDefault()});
+  tb.addEventListener("pointerover",e=>{if(down)paint(e.target.closest("td"))});
+  tb.addEventListener("pointermove",e=>{if(!down||e.pointerType=="mouse")return;paint(document.elementFromPoint(e.clientX,e.clientY)?.closest("td"))});
+  window.addEventListener("pointerup",()=>{down=false},{once:false});}
+}
+function render(){$("filt").style.display=view=="dispo"?"none":"";view=="month"?month():view=="list"?list():dispo()}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-id]");if(t&&!e.target.closest(".box")){const x=E[+t.dataset.id];
  $("box").style.setProperty("--c",`var(--${x.th})`);
  $("box").innerHTML=`<div class="tp" style="color:var(--${x.th});font-size:.72rem;font-weight:800;text-transform:uppercase">${TH[x.th]}</div><h3>${esc(x.t)}</h3><div class="dt" style="color:var(--mut)">📍 ${esc(x.city)}<br>🗓 ${range(x)} (${days(x)} j)</div><div class="who">${whoHtml(x)}</div>${x.no?`<p>⚠️ ${esc(x.no)}</p>`:""}<p style="font-size:.78rem">Dans l'agenda familial : « ${esc(x.src)} »</p><div class="act">${x.hub?`<a class="btn" href="/events-hub.html#${x.hub}">Programme ${HUB[x.hub]} →</a>`:""}<button class="btn g" id="cls">Fermer</button></div>`;
