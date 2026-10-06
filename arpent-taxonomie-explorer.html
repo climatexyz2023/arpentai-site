@@ -129,9 +129,37 @@
  .apnav .apburger{display:block;}
 }
 </style>
-<!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f6e9979913c74e3eb1cb754e9dd1f840"}'></script><!-- End Cloudflare Web Analytics --></head>
+<!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f6e9979913c74e3eb1cb754e9dd1f840"}'></script><!-- End Cloudflare Web Analytics --><style id="apside-css">
+.apnav .aplinks{display:none!important}
+.apnav .apburger{display:none!important}
+.apnav .apside-btn{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:38px;height:34px;padding:0 9px;background:none;border:1px solid #2a3446;border-radius:8px;cursor:pointer;flex:0 0 auto}
+.apnav .apside-btn span{display:block;height:2px;border-radius:2px;background:#e9edf4}
+.apnav .apside-btn:hover{background:#141b28}
+.apnav .apside-btn:focus-visible,.apside a:focus-visible,.apside summary:focus-visible,.apside-x:focus-visible{outline:2px solid #4fd1c5;outline-offset:2px}
+.apnav .apcur{color:#9aa6bd;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.apside-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .18s;z-index:100000}
+.apside{position:fixed;top:0;left:0;bottom:0;width:300px;max-width:86vw;background:#0f1520;border-right:1px solid #232c3d;transform:translateX(-102%);transition:transform .2s ease;z-index:100001;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;padding:14px 12px 28px;box-sizing:border-box}
+.apside-open .apside{transform:none}
+.apside-open .apside-ov{opacity:1;pointer-events:auto}
+.apside-head{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 14px;border-bottom:1px solid #232c3d;margin-bottom:10px}
+.apside-head a{font-weight:800;letter-spacing:.34em;font-size:.7rem;text-transform:uppercase;color:#d4af37;text-decoration:none}
+.apside-x{background:none;border:1px solid #2a3446;border-radius:8px;color:#e9edf4;font-size:1rem;line-height:1;padding:6px 10px;cursor:pointer}
+.apside ul{list-style:none;margin:0;padding:0}
+.apside ul ul{margin:2px 0 4px 12px;padding-left:8px;border-left:1px solid #232c3d}
+.apside a,.apside summary{display:flex;align-items:center;gap:8px;color:#9aa6bd;text-decoration:none;font-size:.9rem;font-weight:600;padding:9px 10px;border-radius:8px;cursor:pointer;line-height:1.25}
+.apside ul ul a,.apside ul ul summary{font-size:.86rem}
+.apside a:hover,.apside summary:hover{color:#e9edf4;background:#141b28}
+.apside a.apon{color:#4fd1c5;background:rgba(79,209,197,.10)}
+.apside summary{list-style:none;justify-content:space-between}
+.apside summary::-webkit-details-marker{display:none}
+.apside summary::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:4px;flex:0 0 auto}
+.apside details[open]>summary::after{transform:rotate(45deg)}
+.apside details.aphas>summary{color:#e9edf4}
+.apside .apext{font-size:.75rem;opacity:.7}
+body.apside-lock{overflow:hidden}
+</style></head>
 <body>
-<nav class="apnav"><div class="apin"><a class="apbrand" href="/">Arpent</a><span class="apsp"></span><button class="apburger" aria-label="Menu" onclick="var l=this.closest('.apin').querySelector('.aplinks');l.classList.toggle('apopen')">☰</button><div class="aplinks"><a class="aplnk" href="/">Home</a><a class="aplnk" href="/events-hub.html">Events</a><a class="aplnk" href="/agenda.html">Agenda</a><a class="aplnk" href="/annuaire.html">Annuaire</a><a class="aplnk" href="/autorites-centenaires.html">Authorities</a><a class="aplnk apon" href="/arpent-taxonomie-explorer.html">Taxonomy</a><a class="aplnk" href="/catalogue-produits.html">Products</a><a class="aplnk" href="/deck-versions.html">Deck</a><a class="aplnk" href="https://sites.arpentai.com" target="_blank" rel="noopener noreferrer" title="Sites et maquettes (faits avec ChatGPT)">Sites &amp; maquettes ↗</a></div></div></nav>
+<nav class="apnav" aria-label="Main"><div class="apin"><button class="apside-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="apside"><span></span><span></span><span></span></button><a class="apbrand" href="/">Arpent</a><span class="apsp"></span><span class="apcur">Taxonomie</span></div></nav><div class="apside-ov" aria-hidden="true"></div><aside class="apside" id="apside" aria-label="Site menu" aria-hidden="true" inert><div class="apside-head"><a href="/">Arpent</a><button class="apside-x" type="button" aria-label="Close menu">✕</button></div><ul><li><a href="/">Home</a></li><li><a href="/events-hub.html">Events</a></li><li><a href="/agenda.html">Team agenda</a></li><li><a href="/annuaire.html">Annuaire</a></li><li><details><summary>Authorities</summary><ul><li><a href="/autorites-centenaires.html">Autorités centenaires Europe</a></li></ul></details></li><li><details class="aphas" open><summary>Use Cases</summary><ul><li><details class="aphas" open><summary>Bâtiment</summary><ul><li><a href="/arpent-taxonomie-explorer.html" class="apon" aria-current="page">Taxonomie</a></li><li><a href="/catalogue-produits.html">Products</a></li></ul></details></li></ul></details></li><li><details><summary>Arpent Projet</summary><ul><li><a href="/deck-versions.html">Deck</a></li><li><a href="https://sites.arpentai.com" target="_blank" rel="noopener noreferrer">Sites &amp; maquettes <span class="apext" aria-hidden="true">↗</span></a></li></ul></details></li></ul></aside><script>(function(){var r=document.documentElement,b=document.body;function o(){r.classList.add('apside-open');b.classList.add('apside-lock');var s=document.querySelector('.apside');s.removeAttribute('inert');s.setAttribute('aria-hidden','false');document.querySelector('.apside-btn').setAttribute('aria-expanded','true');var f=s.querySelector('.apside-x');f&&f.focus();}function c(){if(!r.classList.contains('apside-open'))return;r.classList.remove('apside-open');b.classList.remove('apside-lock');var s=document.querySelector('.apside');s.setAttribute('inert','');s.setAttribute('aria-hidden','true');var t=document.querySelector('.apside-btn');t.setAttribute('aria-expanded','false');t.focus();}document.addEventListener('click',function(e){if(e.target.closest('.apside-btn'))o();else if(e.target.closest('.apside-x,.apside-ov'))c();});document.addEventListener('keydown',function(e){if(e.key==='Escape')c();});})();</script>
 
 <div class="wrap">
 
